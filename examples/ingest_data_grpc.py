@@ -5,7 +5,7 @@ import logging
 import pytz
 
 from ziplime.core.ingest_data import get_asset_service, ingest_market_data
-from ziplime_grpc_data_source.grpc_data_source import GrpcDataSource
+from zipfinam import GrpcDataSource
 from ziplime.utils.logging_utils import configure_logging
 
 
