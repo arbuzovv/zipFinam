@@ -2,7 +2,7 @@ import asyncio
 import logging
 
 from ziplime.core.ingest_data import get_asset_service, ingest_assets
-from zipfinam import GrpcAssetDataSource
+from ziplime_grpc_data_source.grpc_asset_data_source import GrpcAssetDataSource
 from ziplime.utils.logging_utils import configure_logging
 
 

@@ -20,7 +20,6 @@ from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1.auth import auth_servi
 from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1.marketdata import marketdata_service_pb2_grpc, \
     marketdata_service_pb2
 from google.type import interval_pb2
-from zoneinfo import ZoneInfo
 
 class GrpcDataSource(DataBundleSource):
     def __init__(self, authorization_token: str, server_url: str,
@@ -106,11 +105,11 @@ class GrpcDataSource(DataBundleSource):
         duration = time.time() - request_start
         total_requests_time += duration
 
+        tz = date_from.tzinfo if date_from.tzinfo is not None else datetime.timezone.utc
+        tz_str = str(tz) if tz != datetime.timezone.utc else "UTC"
         rows = [
             {
-                # temporary fix, GRPC data source always returns data in NY timezone
-                "date": datetime.datetime.fromtimestamp(candle.timestamp.seconds,
-                                          tz=ZoneInfo("America/New_York")).replace(tzinfo=date_from.tzinfo),
+                "date": datetime.datetime.fromtimestamp(candle.timestamp.seconds, tz=tz),
                 "open": float(candle.open.value),
                 "high": float(candle.high.value),
                 "low": float(candle.low.value),
@@ -132,7 +131,7 @@ class GrpcDataSource(DataBundleSource):
                                             ("price", pl.Float64()),
                                             ("high", pl.Float64()), ("low", pl.Float64()),
                                             ("volume", pl.Float64()),
-                                            ("date", pl.Datetime(time_zone=date_from.tzinfo)), ("exchange", pl.String),
+                                            ("date", pl.Datetime(time_zone=tz_str)), ("exchange", pl.String),
                                             ("exchange_country", pl.String), ("symbol", pl.String)
                                             ])
             duration_total = time.time() - duration_start
@@ -179,13 +178,13 @@ class GrpcDataSource(DataBundleSource):
                          file=sys.stdout) as pbar:
 
             if frequency >= datetime.timedelta(days=1):
-                maximum_batch = datetime.timedelta(days=7200)
-            elif frequency >= datetime.timedelta(hours=1):
-                maximum_batch = datetime.timedelta(days=365)
-            elif frequency >= datetime.timedelta(minutes=1):
                 maximum_batch = datetime.timedelta(days=180)
-            elif frequency >= datetime.timedelta(seconds=1):
+            elif frequency >= datetime.timedelta(hours=1):
+                maximum_batch = datetime.timedelta(days=90)
+            elif frequency >= datetime.timedelta(minutes=1):
                 maximum_batch = datetime.timedelta(days=30)
+            elif frequency >= datetime.timedelta(seconds=1):
+                maximum_batch = datetime.timedelta(days=7)
 
             tasks = []
             batch_start_date = date_from
@@ -226,7 +225,8 @@ class GrpcDataSource(DataBundleSource):
     def from_env(cls) -> Self:
         token = os.environ.get("GRPC_TOKEN", None)
         server_url = os.environ.get("GRPC_SERVER_URL")
-        maximum_threads = os.environ.get("GRPC_MAXIMUM_THREADS", None)
+        maximum_threads_raw = os.environ.get("GRPC_MAXIMUM_THREADS", None)
+        maximum_threads = int(maximum_threads_raw) if maximum_threads_raw is not None else None
         if token is None:
             raise ValueError("Missing GRPC_TOKEN environment variable.")
         return cls(server_url=server_url, authorization_token=token, maximum_threads=maximum_threads)

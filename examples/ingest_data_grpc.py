@@ -5,7 +5,7 @@ import logging
 import pytz
 
 from ziplime.core.ingest_data import get_asset_service, ingest_market_data
-from zipfinam import GrpcDataSource
+from ziplime_grpc_data_source.grpc_data_source import GrpcDataSource
 from ziplime.utils.logging_utils import configure_logging
 
 
@@ -22,8 +22,8 @@ async def _ingest_data_grpc():
     timezone = "Europe/Moscow"
     calendar = "XMOS"
 
-    start_date = datetime.datetime(year=2025, month=9, day=1, tzinfo=pytz.timezone(timezone))
-    end_date = datetime.datetime(year=2025, month=9, day=18, tzinfo=pytz.timezone(timezone))
+    start_date = datetime.datetime(year=2025, month=1, day=1, tzinfo=pytz.timezone(timezone))
+    end_date = datetime.datetime(year=2025, month=1, day=1, tzinfo=pytz.timezone(timezone))
     market_data_bundle_source = GrpcDataSource.from_env()
     await market_data_bundle_source.get_token()
 
