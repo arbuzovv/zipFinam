@@ -1,3 +1,4 @@
+<img src="ai_assistant/img/zipFinam_black.png" alt="Ziplime">
 # zipFinam
 
 Источник рыночных данных на основе Финма Trade API для фреймворка [Ziplime](https://github.com/Limex-com/ziplime) — адаптер для подключения к API брокера **Финам** и работы с российским фондовым рынком.
@@ -116,11 +117,29 @@ asyncio.run(asset_source.ingest())
 # Установите API-ключ OpenRouter
 export OPENROUTER_API_KEY=ваш_ключ
 
-# Запустите ассистента
+# Запустите ассистента (интерактивный выбор модели)
 python -m ai_assistant
+
+# Запустите с моделью по умолчанию (без выбора)
+python -m ai_assistant --default-model
 
 # Показывать сгенерированный код стратегии
 python -m ai_assistant --show-code
+```
+
+### Доступные модели
+
+При запуске без `--default-model` отображается меню выбора модели:
+
+| Категория | Модели |
+|-----------|--------|
+| **Бесплатные** | `nvidia/nemotron-3-super-120b-a12b:free`, `qwen/qwen3-next-80b-a3b-instruct:free`, `z-ai/glm-4.5-air:free` *(по умолчанию)*, `stepfun/step-3.5-flash:free` |
+| **Платные (РФ)** | `deepseek/deepseek-v3.2`, `xiaomi/mimo-v2-flash`, `qwen/qwen3-coder-next`, `z-ai/glm-5`, `moonshotai/kimi-k2.5` |
+| **Платные (не РФ)** | `google/gemini-3.1-flash-lite-preview`, `x-ai/grok-code-fast-1`, `openai/gpt-5-mini` |
+
+Модель можно задать через переменную окружения (тогда меню пропускается):
+```bash
+export OPENROUTER_MODEL=deepseek/deepseek-v3.2
 ```
 
 ### Примеры запросов
@@ -189,6 +208,7 @@ ai_assistant/
 - openai >= 1.0.0 (клиент OpenRouter)
 - rich >= 13.0.0
 - python-dotenv >= 1.0.0
+- quantstats >= 0.0.81 (HTML-отчёты по стратегиям)
 
 ---
 

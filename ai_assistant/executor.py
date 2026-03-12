@@ -66,9 +66,9 @@ class BacktestResult:
             f"Max drawdown: {self.max_drawdown_pct:.2f}%",
         ]
         if self.alpha is not None:
-            lines.append(f"Alpha (vs SPY): {self.alpha:+.4f}")
+            lines.append(f"Alpha (vs IMOEX): {self.alpha:+.4f}")
         if self.beta is not None:
-            lines.append(f"Beta (vs SPY): {self.beta:.4f}")
+            lines.append(f"Beta (vs IMOEX): {self.beta:.4f}")
         if self.errors:
             lines.append(f"Warnings: {len(self.errors)} non-fatal simulation errors")
         if self.qs_metrics_text:
@@ -148,11 +148,15 @@ class BacktestExecutor:
             db_path=str(self.data_manager.get_assets_db_path()),
         )
 
+        # Benchmark is always ingested by DataManager._ingest, so it's always
+        # present in the latest bundle version.
+        effective_benchmark = config.benchmark
+
         # Include the benchmark symbol in the bundle so BenchmarkSource can
         # look it up by sid — otherwise we get KeyError inside simulation_exchange.
         bundle_symbols = list(config.symbols)
-        if config.benchmark and config.benchmark not in bundle_symbols:
-            bundle_symbols.append(config.benchmark)
+        if effective_benchmark and effective_benchmark not in bundle_symbols:
+            bundle_symbols.append(effective_benchmark)
 
         # load_bundle expects ticker names without the "@MIC" suffix
         bundle_tickers = [s.split("@")[0] for s in bundle_symbols]
@@ -171,7 +175,7 @@ class BacktestExecutor:
         algo_file = _write_temp_algo(full_code)
 
         try:
-            result = await run_simulation(
+            perf, sim_errors = await run_simulation(
                 start_date=start_date,
                 end_date=end_date,
                 trading_calendar="XMOS",
@@ -180,14 +184,15 @@ class BacktestExecutor:
                 market_data_source=market_data,
                 custom_data_sources=[],
                 emission_rate=datetime.timedelta(days=1),
-                benchmark_asset_symbol=config.benchmark,
+                benchmark_asset_symbol=effective_benchmark,
                 stop_on_error=False,
                 asset_service=asset_service,
             )
         finally:
             _safe_remove(algo_file)
 
-        return self._build_result(result, config, start_date, end_date, algorithm_code)
+        return self._build_result(perf, sim_errors, config, start_date, end_date, algorithm_code,
+                                  effective_benchmark=effective_benchmark)
 
     # ------------------------------------------------------------------ #
     # Private                                                              #
@@ -195,14 +200,15 @@ class BacktestExecutor:
 
     def _build_result(
         self,
-        sim_result,
+        perf,
+        sim_errors: list,
         config: BacktestConfig,
         start_date: datetime.datetime,
         end_date: datetime.datetime,
         algorithm_code: str = "",
+        effective_benchmark: Optional[str] = None,  # noqa: unused — kept for caller convenience
     ) -> BacktestResult:
         """Convert raw simulation result into a BacktestResult with QuantStats."""
-        perf = sim_result.perf if hasattr(sim_result, "perf") else None
 
         # ---- portfolio_value (handle both Polars and pandas) ----
         portfolio_values: list[float] = []
@@ -228,9 +234,7 @@ class BacktestExecutor:
             if first and years > 0 else 0.0
         )
 
-        errors = []
-        if hasattr(sim_result, "errors") and sim_result.errors:
-            errors = [str(e) for e in sim_result.errors]
+        errors = [str(e) for e in sim_errors] if sim_errors else []
 
         # ---- QuantStats + strategy file ----
         returns_series    = _extract_returns_series(perf)
@@ -475,6 +479,7 @@ def _save_strategy_file(
             "    import asyncio\n"
             "    import datetime\n"
             "    import pathlib\n"
+            "    import pytz\n"
             "    from ziplime.core.run_simulation import run_simulation\n"
             "    from ziplime.core.ingest_data import get_asset_service\n"
             "    from ziplime.utils.bundle_utils import get_bundle_service\n"
@@ -482,10 +487,9 @@ def _save_strategy_file(
             "    from ziplime.core.ingest_data import ingest_market_data\n"
             "\n"
             "    async def _run():\n"
-            f"        start = datetime.datetime({config.start_date.replace('-', ', ')}, "
-            "tzinfo=datetime.timezone.utc)\n"
-            f"        end   = datetime.datetime({config.end_date.replace('-', ', ')}, "
-            "tzinfo=datetime.timezone.utc)\n"
+            f"        tz = pytz.timezone('Europe/Moscow')\n"
+            f"        start = tz.localize(datetime.datetime{_date_to_tuple(config.start_date)})\n"
+            f"        end   = tz.localize(datetime.datetime{_date_to_tuple(config.end_date)})\n"
             f"        symbols = {config.symbols!r}\n"
             f"        capital = {config.capital}\n"
             f"        benchmark = {config.benchmark!r}\n"
@@ -509,13 +513,15 @@ def _save_strategy_file(
             "            asset_service=asset_service,\n"
             "        )\n"
             "        bundle_service = get_bundle_service()\n"
+            "        all_syms = symbols + ([benchmark] if benchmark else [])\n"
+            "        bundle_tickers = [s.split('@')[0] for s in all_syms]\n"
             "        market_data = await bundle_service.load_bundle(\n"
             "            bundle_name=bundle_name,\n"
             "            bundle_version=None,\n"
             "            frequency=datetime.timedelta(days=1),\n"
             "            start_date=start - datetime.timedelta(days=90),\n"
             "            end_date=end + datetime.timedelta(days=1),\n"
-            "            symbols=symbols + ([benchmark] if benchmark else []),\n"
+            "            symbols=bundle_tickers,\n"
             "        )\n"
             "        result = await run_simulation(\n"
             "            start_date=start,\n"
@@ -609,6 +615,12 @@ def _manual_max_drawdown(portfolio_values: list[float]) -> float:
 # ------------------------------------------------------------------ #
 # General helpers                                                      #
 # ------------------------------------------------------------------ #
+
+def _date_to_tuple(date_str: str) -> str:
+    """Convert 'YYYY-MM-DD' to '(YYYY, M, D)' without leading zeros."""
+    y, m, d = (int(x) for x in date_str.split("-"))
+    return f"({y}, {m}, {d})"
+
 
 def _parse_date_tz(date_str: str) -> datetime.datetime:
     """Parse YYYY-MM-DD string to timezone-aware datetime (Moscow time)."""

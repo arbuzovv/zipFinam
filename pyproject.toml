@@ -38,7 +38,8 @@ dependencies = [
     "ziplime (>=1.11.11,<2.0.0)",
     "grpcio (>=1.76.0,<2.0.0)",
     "googleapis-common-protos (>=1.72.0,<2.0.0)",
-    "rich (>=14.3.3,<15.0.0)"
+    "rich (>=14.3.3,<15.0.0)",
+    "quantstats (>=0.0.81,<0.0.82)"
 ]
 
 [build-system]

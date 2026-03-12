@@ -68,17 +68,9 @@ class GrpcAssetDataSource(AssetDataSource):
                                     exchange_name=asset.mic,
                                     start_date=asset_start_date,
                                     end_date=asset_end_date,
-                                    company_symbol="",
-                                    share_class_symbol=""
+                                    company_symbol=asset.name,
+                                    share_class_symbol=asset.type
                                 )
-                                # "LIME": EquitySymbolMapping(
-                                #     symbol=asset.symbol,
-                                #     exchange_name="LIME",
-                                #     start_date=asset_start_date,
-                                #     end_date=asset_end_date,
-                                #     company_symbol="",
-                                #     share_class_symbol=""
-                                # )
                             },
                             sid=None,
                             start_date=asset_start_date,
@@ -93,10 +85,29 @@ class GrpcAssetDataSource(AssetDataSource):
                                     exchange_name=asset.mic,
                                     start_date=asset_start_date,
                                     end_date=asset_end_date,
-                                    company_symbol="",
-                                    share_class_symbol=""
+                                    company_symbol=asset.name,
+                                    share_class_symbol=asset.type
                                 )
-
+        # add IMOEX
+        equities['IMOEX'] =  Equity(
+                        asset_name='IMOEX@MISX',
+                            symbol_mapping={
+                                asset.mic: EquitySymbolMapping(
+                                    symbol='IMOEX',
+                                    exchange_name='MISX',
+                                    start_date=asset_start_date,
+                                    end_date=asset_end_date,
+                                    company_symbol='Индекс Московской Биржи',
+                                    share_class_symbol='INDEX'
+                                )
+                            },
+                            sid=None,
+                            start_date=asset_start_date,
+                            end_date=asset_end_date,
+                            auto_close_date=asset_end_date,
+                            first_traded=asset_start_date,
+                            mic=asset.mic
+                        )
         return list(equities.values())
 
     async def get_exchanges(self, **kwargs) ->list[ExchangeInfo]:

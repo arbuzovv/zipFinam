@@ -2,12 +2,13 @@
 ИИ-ассистент Ziplime для бэктестинга — интерактивный CLI.
 
 Использование:
-    python -m ai_assistant
-    python ai_assistant/cli.py
+    python -m ai_assistant                  # интерактивный выбор модели
+    python -m ai_assistant --default-model  # модель по умолчанию без выбора
+    python -m ai_assistant --show-code      # показывать код стратегии
 
 Переменные окружения (необязательно):
     OPENROUTER_API_KEY   Ваш API-ключ OpenRouter
-    OPENROUTER_MODEL     Модель LLM (по умолчанию: x-ai/grok-4.1-fast)
+    OPENROUTER_MODEL     Модель LLM (пропускает меню выбора)
 """
 from __future__ import annotations
 
@@ -198,11 +199,15 @@ def display_errors(errors: list[str], max_shown: int = 5):
 
 async def run_assistant(
     api_key: str,
-    model: str = "x-ai/grok-4.1-fast",
+    model: str = "z-ai/glm-4.5-air:free",
     show_code: bool = False,
 ):
     """Основной интерактивный цикл."""
-    agent        = ZiplimeAgent(api_key=api_key, model=model)
+    import pathlib
+    _db_path = pathlib.Path.home() / ".ziplime" / "assets.sqlite"
+    db_path = str(_db_path) if _db_path.exists() else None
+
+    agent        = ZiplimeAgent(api_key=api_key, model=model, db_path=db_path)
     data_manager = DataManager(on_progress=lambda msg: console.print(f"  [dim]{msg}[/dim]"))
     executor     = BacktestExecutor(data_manager=data_manager)
 
@@ -315,11 +320,87 @@ async def run_assistant(
 
 
 # ------------------------------------------------------------------ #
+# Model selection                                                      #
+# ------------------------------------------------------------------ #
+
+_MODELS = [
+    # (display_name, model_id, category)
+    ("nvidia/nemotron-3-super-120b-a12b:free",  "nvidia/nemotron-3-super-120b-a12b:free",  "free"),
+    ("qwen/qwen3-next-80b-a3b-instruct:free",   "qwen/qwen3-next-80b-a3b-instruct:free",   "free"),
+    ("z-ai/glm-4.5-air:free",                   "z-ai/glm-4.5-air:free",                   "free"),
+    ("stepfun/step-3.5-flash:free",             "stepfun/step-3.5-flash:free",             "free"),
+    ("deepseek/deepseek-v3.2",                  "deepseek/deepseek-v3.2",                  "paid-ru"),
+    ("xiaomi/mimo-v2-flash",                    "xiaomi/mimo-v2-flash",                    "paid-ru"),
+    ("qwen/qwen3-coder-next",                   "qwen/qwen3-coder-next",                   "paid-ru"),
+    ("z-ai/glm-5",                              "z-ai/glm-5",                              "paid-ru"),
+    ("moonshotai/kimi-k2.5",                    "moonshotai/kimi-k2.5",                    "paid-ru"),
+    ("google/gemini-3.1-flash-lite-preview",    "google/gemini-3.1-flash-lite-preview",    "paid-noru"),
+    ("x-ai/grok-code-fast-1",                   "x-ai/grok-code-fast-1",                   "paid-noru"),
+    ("openai/gpt-5-mini",                       "openai/gpt-5-mini",                       "paid-noru"),
+]
+
+_DEFAULT_MODEL = "z-ai/glm-4.5-air:free"
+
+_CATEGORY_LABELS = {
+    "free":      "[green]Бесплатные[/green]",
+    "paid-ru":   "[yellow]Платные (доступны из РФ)[/yellow]",
+    "paid-noru": "[red]Платные (недоступны из РФ)[/red]",
+}
+
+
+def _choose_model() -> str:
+    """Интерактивный выбор LLM-модели из списка."""
+    table = Table(
+        title="[bold]Выберите модель LLM[/bold]",
+        box=box.SIMPLE_HEAVY,
+        border_style="cyan",
+        show_header=True,
+        padding=(0, 2),
+    )
+    table.add_column("#",       style="dim", width=4, justify="right")
+    table.add_column("Модель",  width=45)
+    table.add_column("Тип",     width=32)
+
+    default_idx = 1
+    for i, (name, model_id, cat) in enumerate(_MODELS, 1):
+        label = _CATEGORY_LABELS[cat]
+        marker = " [bold cyan]← по умолчанию[/bold cyan]" if model_id == _DEFAULT_MODEL else ""
+        table.add_row(str(i), name + marker, label)
+        if model_id == _DEFAULT_MODEL:
+            default_idx = i
+
+    console.print()
+    console.print(table)
+
+    while True:
+        raw = console.input(
+            f"[bold cyan]Введите номер модели[/bold cyan] "
+            f"[dim](Enter = {default_idx})[/dim]: "
+        ).strip()
+        if raw == "":
+            return _DEFAULT_MODEL
+        if raw.isdigit():
+            idx = int(raw)
+            if 1 <= idx <= len(_MODELS):
+                chosen = _MODELS[idx - 1][1]
+                console.print(f"[dim]Выбрана модель: {chosen}[/dim]\n")
+                return chosen
+        console.print(f"[yellow]Введите число от 1 до {len(_MODELS)}[/yellow]")
+
+
+# ------------------------------------------------------------------ #
 # Entry point                                                          #
 # ------------------------------------------------------------------ #
 
 def main():
-    """Точка входа CLI. Вызывается через `python -m ai_assistant` или напрямую."""
+    """Точка входа CLI. Вызывается через `python -m ai_assistant` или напрямую.
+
+    Флаги:
+        --default-model   запуск без выбора модели, используется модель по умолчанию
+        --show-code / -v  показывать сгенерированный код стратегии
+    """
+    args = sys.argv[1:]
+
     # --- Получаем API-ключ --------------------------------------------
     api_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if not api_key:
@@ -333,13 +414,17 @@ def main():
             sys.exit(1)
 
     # --- Определяем модель --------------------------------------------
-    model = os.environ.get(
-        "OPENROUTER_MODEL",
-        "x-ai/grok-4.1-fast",
-    )
+    # Приоритет: переменная окружения → флаг --default-model → интерактивный выбор
+    model = os.environ.get("OPENROUTER_MODEL", "").strip()
+    if not model:
+        if "--default-model" in args:
+            model = _DEFAULT_MODEL
+            console.print(f"[dim]Модель по умолчанию: {model}[/dim]\n")
+        else:
+            model = _choose_model()
 
     # --- Разбираем флаги ----------------------------------------------
-    show_code = "--show-code" in sys.argv or "-v" in sys.argv
+    show_code = "--show-code" in args or "-v" in args
 
     # --- Запускаем ----------------------------------------------------
     try:

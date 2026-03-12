@@ -4,12 +4,13 @@ OpenRouter LLM client and conversation management.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 from openai import AsyncOpenAI
 
 from .prompts import SYSTEM_PROMPT
+from .ticker_resolver import TickerResolver
 
 
 @dataclass
@@ -19,7 +20,7 @@ class BacktestConfig:
     start_date: str        # YYYY-MM-DD
     end_date: str          # YYYY-MM-DD
     capital: float = 100_000.0
-    benchmark: Optional[str] = "SPY"
+    benchmark: Optional[str] = "IMOEX@MISX"
 
 
 @dataclass
@@ -37,7 +38,12 @@ class ZiplimeAgent:
     Parses structured backtest requests from LLM responses.
     """
 
-    def __init__(self, api_key: str, model: str = "x-ai/grok-4.1-fast"):
+    def __init__(
+        self,
+        api_key: str,
+        model: str = "z-ai/glm-4.5-air:free",
+        db_path: Optional[str] = None,
+    ):
         self.model = model
         self.conversation_history: list[dict] = []
         self._client = AsyncOpenAI(
@@ -48,6 +54,7 @@ class ZiplimeAgent:
                 "X-Title": "Ziplime AI Backtesting Assistant",
             },
         )
+        self._resolver = TickerResolver(db_path) if db_path else None
 
     async def chat(self, user_message: str) -> AgentResponse:
         """Send a message and get a parsed response."""
@@ -56,8 +63,23 @@ class ZiplimeAgent:
             "content": user_message,
         })
 
+        system_content = SYSTEM_PROMPT
+        if self._resolver is not None:
+            found = self._resolver.search_in_text(user_message)
+            if found:
+                ticker_lines = "\n".join(
+                    f"  {e['symbol']}@{e['exchange']} — {e['company']}"
+                    for e in found
+                )
+                system_content = (
+                    system_content
+                    + "\n\n[ТИКЕРЫ ИЗ БД]\nВ сообщении пользователя найдены следующие активы "
+                    "(используй именно эти тикеры, не придумывай свои):\n"
+                    + ticker_lines
+                )
+
         messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_content},
             *self.conversation_history,
         ]
 
@@ -101,7 +123,7 @@ class ZiplimeAgent:
             start_date: 2024-01-03
             end_date: 2025-01-01
             capital: 100000
-            benchmark: SPY
+            benchmark: IMOEX@MISX
             </BACKTEST>
 
             ```python
@@ -152,7 +174,7 @@ class ZiplimeAgent:
             return None
 
         raw_benchmark = data.get("benchmark", "") or ""
-        benchmark = self._normalize_symbol(raw_benchmark) if raw_benchmark else None
+        benchmark = self._normalize_symbol(raw_benchmark) if raw_benchmark else "IMOEX@MISX"
 
         return BacktestConfig(
             symbols=symbols,

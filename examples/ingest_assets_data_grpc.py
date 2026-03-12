@@ -6,6 +6,7 @@ from ziplime_grpc_data_source.grpc_asset_data_source import GrpcAssetDataSource
 from ziplime.utils.logging_utils import configure_logging
 
 
+
 async def ingest_assets_data_grpc():
     asset_data_source = GrpcAssetDataSource.from_env()
     asset_service = get_asset_service(
