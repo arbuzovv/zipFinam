@@ -26,7 +26,7 @@ if _version_not_supported:
 
 
 class AuthServiceStub(object):
-    """scope:ru,ny,cy
+    """scope:ru,ny,cy,cy_mt5
     {{auth_service.service.auth_service.comment}}
     """
 
@@ -54,12 +54,12 @@ class AuthServiceStub(object):
 
 
 class AuthServiceServicer(object):
-    """scope:ru,ny,cy
+    """scope:ru,ny,cy,cy_mt5
     {{auth_service.service.auth_service.comment}}
     """
 
     def Auth(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{auth_service.service.rpc.auth.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -67,7 +67,7 @@ class AuthServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def TokenDetails(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{auth_service.service.rpc.token_details.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -75,7 +75,7 @@ class AuthServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeJwtRenewal(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{auth_service.service.rpc.subscribe_jwt_renewal.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -109,7 +109,7 @@ def add_AuthServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class AuthService(object):
-    """scope:ru,ny,cy
+    """scope:ru,ny,cy,cy_mt5
     {{auth_service.service.auth_service.comment}}
     """
 

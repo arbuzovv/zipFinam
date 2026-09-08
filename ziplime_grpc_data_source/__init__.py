@@ -5,4 +5,6 @@ New code: ``from zipfinam import FinamDataSource, FinamAssetDataSource``.
 from zipfinam.finam.grpc_asset_data_source import GrpcAssetDataSource
 from zipfinam.finam.grpc_data_source import GrpcDataSource
 
-__all__ = ["GrpcDataSource", "GrpcAssetDataSource"]
+FinamAssetDataSource = GrpcAssetDataSource
+
+__all__ = ["GrpcDataSource", "GrpcAssetDataSource", "FinamAssetDataSource"]

@@ -26,7 +26,7 @@ if _version_not_supported:
 
 
 class MarketDataServiceStub(object):
-    """scope:ru,ny,cy
+    """scope:ru,ny,cy,cy_mt5
     {{marketdata_service.service.marketdata_service.comment}}
     """
 
@@ -79,12 +79,12 @@ class MarketDataServiceStub(object):
 
 
 class MarketDataServiceServicer(object):
-    """scope:ru,ny,cy
+    """scope:ru,ny,cy,cy_mt5
     {{marketdata_service.service.marketdata_service.comment}}
     """
 
     def Bars(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{marketdata_service.service.marketdata_service.rpc.bars.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -92,7 +92,7 @@ class MarketDataServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def LastQuote(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{marketdata_service.service.marketdata_service.rpc.last_quote.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -100,7 +100,7 @@ class MarketDataServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def OrderBook(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{marketdata_service.service.marketdata_service.rpc.orderbook.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -108,7 +108,7 @@ class MarketDataServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def LatestTrades(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{marketdata_service.service.marketdata_service.rpc.latest_trades.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -116,7 +116,7 @@ class MarketDataServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeQuote(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{marketdata_service.service.marketdata_service.rpc.subscribe_quote.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -124,7 +124,7 @@ class MarketDataServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeOrderBook(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{marketdata_service.service.marketdata_service.rpc.subscribe_orderbook.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -132,7 +132,7 @@ class MarketDataServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeLatestTrades(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{marketdata_service.service.marketdata_service.rpc.subscribe_latest_trades.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -140,7 +140,7 @@ class MarketDataServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeBars(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{marketdata_service.service.marketdata_service.rpc.subscribe_bars.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -199,7 +199,7 @@ def add_MarketDataServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class MarketDataService(object):
-    """scope:ru,ny,cy
+    """scope:ru,ny,cy,cy_mt5
     {{marketdata_service.service.marketdata_service.comment}}
     """
 

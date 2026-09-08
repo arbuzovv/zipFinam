@@ -180,13 +180,13 @@ class GrpcDataSource(DataBundleSource):
                          file=sys.stdout) as pbar:
 
             if frequency >= datetime.timedelta(days=1):
-                maximum_batch = datetime.timedelta(days=180)
+                maximum_batch = datetime.timedelta(days=7200)
             elif frequency >= datetime.timedelta(hours=1):
-                maximum_batch = datetime.timedelta(days=90)
+                maximum_batch = datetime.timedelta(days=365)
             elif frequency >= datetime.timedelta(minutes=1):
-                maximum_batch = datetime.timedelta(days=30)
+                maximum_batch = datetime.timedelta(days=180)
             elif frequency >= datetime.timedelta(seconds=1):
-                maximum_batch = datetime.timedelta(days=7)
+                maximum_batch = datetime.timedelta(days=30)
 
             tasks = []
             batch_start_date = date_from

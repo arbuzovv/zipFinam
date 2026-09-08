@@ -26,7 +26,7 @@ if _version_not_supported:
 
 
 class AccountsServiceStub(object):
-    """scope:ru,ny,cy
+    """scope:ru,ny,cy,cy_mt5
     {{accounts_service.service.accounts_service.comment}}
     """
 
@@ -59,12 +59,12 @@ class AccountsServiceStub(object):
 
 
 class AccountsServiceServicer(object):
-    """scope:ru,ny,cy
+    """scope:ru,ny,cy,cy_mt5
     {{accounts_service.service.accounts_service.comment}}
     """
 
     def GetAccount(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{accounts_service.service.rpc.get_account.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -72,7 +72,7 @@ class AccountsServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def Trades(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{accounts_service.service.rpc.trades.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -80,7 +80,7 @@ class AccountsServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def Transactions(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{accounts_service.service.rpc.transactions.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -88,7 +88,7 @@ class AccountsServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeAccount(self, request, context):
-        """scope:ru,ny,cy
+        """scope:ru,ny,cy,cy_mt5
         {{accounts_service.service.rpc.subscribe_account.comment}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -127,7 +127,7 @@ def add_AccountsServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class AccountsService(object):
-    """scope:ru,ny,cy
+    """scope:ru,ny,cy,cy_mt5
     {{accounts_service.service.accounts_service.comment}}
     """
 

@@ -1,3 +1,6 @@
+import asyncio
+import sys
+import time
 import datetime
 import multiprocessing
 import os
@@ -9,6 +12,14 @@ import structlog
 
 import polars as pl
 from aiocache import Cache
+from asyncclick import progressbar
+from google.protobuf.timestamp_pb2 import Timestamp
+from ziplime.assets.entities.dividend_payout import DividendPayout
+from ziplime.assets.entities.split import Split
+from ziplime.assets.services.asset_service import AssetService
+from zipfinam.finam.grpc_stubs.grpc.tradeapi.v1.corporateactions import (
+    corporate_actions_service_pb2, corporate_actions_service_pb2_grpc,
+)
 
 from ziplime.assets.domain.assets_import import AssetsImport
 from ziplime.assets.entities.currency import Currency
@@ -146,6 +157,183 @@ class GrpcAssetDataSource(AssetDataSource):
                 for exchange in response_stream.exchanges]
             self._logger.info(f"Got {len(exchanges)} exchanges from GRPC asset data source.")
         return exchanges
+
+    async def _fetch_dividends_data(self,
+                                    channel: grpc.aio.Channel,
+                                    asset_service: AssetService,
+                                    date_from: datetime.datetime,
+                                    date_to: datetime.datetime,
+                                    asset: ExchangeAsset,
+                                    ) -> list[DividendPayout]:
+        token = await self.get_token()
+        stub = corporate_actions_service_pb2_grpc.CorporateActionsServiceStub(channel)
+        metadata = [('authorization', token)]
+        timestamp_from = Timestamp()
+        timestamp_to = Timestamp()
+        timestamp_from.FromDatetime(date_from)
+        timestamp_to.FromDatetime(date_to)
+        dividends = []
+        dividends_request = corporate_actions_service_pb2.GetPastDividendsRequest(limit=1000)
+        dividends_request.symbol = f"{asset.symbol}@{asset.mic}"
+        self._logger.info(f"Fetching dividends for symbol {asset.symbol} - {date_from} to {date_to}",
+                          symbol=asset.symbol, start_date=date_from, end_date=date_to)
+        total_requests_time = 0
+        request_start = time.time()
+        response = await stub.GetPastDividends(dividends_request, metadata=metadata)
+        duration = time.time() - request_start
+        total_requests_time += duration
+        for dividend in response.dividends:
+            dividend_date = datetime.date(year=dividend.date.year, month=dividend.date.month,
+                                          day=dividend.date.day
+                                          )
+            d = DividendPayout(
+                asset=asset.asset,
+                amount=float(dividend.amount.value),
+                pay_date=dividend_date,
+                ex_date=dividend_date,
+                declared_date=dividend_date,
+                record_date=dividend_date,
+                currency=await asset_service.get_currency_by_symbol(symbol=dividend.currency)
+            )
+            dividends.append(d)
+
+        self._logger.info(
+            f"Fetched dividends data for symbol {asset.symbol} - {date_from} to {date_to} in {duration:.2f}",
+            symbol=asset.symbol, start_date=date_from, end_date=date_to, duration=duration)
+
+        return dividends
+
+    async def _fetch_splits_data(self,
+                                 channel: grpc.aio.Channel,
+                                 asset_service: AssetService,
+                                 date_from: datetime.datetime,
+                                 date_to: datetime.datetime,
+                                 asset: ExchangeAsset,
+                                 ) -> list[Split]:
+        token = await self.get_token()
+        stub = corporate_actions_service_pb2_grpc.CorporateActionsServiceStub(channel)
+        metadata = [('authorization', token)]
+        timestamp_from = Timestamp()
+        timestamp_to = Timestamp()
+        timestamp_from.FromDatetime(date_from)
+        timestamp_to.FromDatetime(date_to)
+        splits = []
+        splits_request = corporate_actions_service_pb2.GetPastSplitsRequest(limit=1000)
+        splits_request.symbol = f"{asset.symbol}@{asset.mic}"
+        self._logger.info(f"Fetching splits for symbol {asset.symbol} - {date_from} to {date_to}",
+                          symbol=asset.symbol, start_date=date_from, end_date=date_to)
+        total_requests_time = 0
+        request_start = time.time()
+        response = await stub.GetPastSplits(splits_request, metadata=metadata)
+        duration = time.time() - request_start
+        total_requests_time += duration
+        for split in response.splits:
+            s = Split(
+                asset=asset.asset,
+                ratio=float(split.old_ratio.value) / float(split.new_ratio.value),
+                effective_date=datetime.date(year=split.exec_date.year, month=split.exec_date.month,
+                                             day=split.exec_date.day
+                                             ),
+            )
+            splits.append(s)
+
+        self._logger.info(
+            f"Fetched dividends data for symbol {asset.symbol} - {date_from} to {date_to} in {duration:.2f}",
+            symbol=asset.symbol, start_date=date_from, end_date=date_to, duration=duration)
+
+        return splits
+
+    async def get_dividends(self, assets: list[ExchangeAsset],
+                            asset_service: AssetService,
+                            date_from: datetime.datetime,
+                            date_to: datetime.datetime,
+                            ) -> list[DividendPayout]:
+        async def fetch_historical(asset: ExchangeAsset, asset_service: AssetService,
+                                   start_date: datetime.datetime,
+                                   end_date: datetime.datetime) -> list[DividendPayout]:
+            try:
+                credentials = grpc.ssl_channel_credentials()
+                async with grpc.aio.secure_channel(self._server_url, credentials) as channel:
+
+                    result = await self._fetch_dividends_data(channel=channel,
+                                                              asset_service=asset_service,
+                                                              date_from=start_date,
+                                                              date_to=end_date,
+                                                              asset=asset)
+                    return result
+            except Exception as e:
+                self._logger.exception(
+                    f"Exception fetching dividends data for symbol {asset.symbol}, date_from={start_date}, date_to={end_date}. Skipping."
+                )
+                return []
+
+        total_days = (date_to - date_from).days
+        dividend_payouts = []
+        with progressbar(length=len(assets) * total_days, label="Downloading dividends data from GRPC",
+                         file=sys.stdout) as pbar:
+            tasks = [fetch_historical(
+                asset=asset, asset_service=asset_service, start_date=date_from, end_date=date_to
+            ) for asset in assets]
+            total_duration = 0
+            total_requests_duration = 0
+            res = await asyncio.gather(*tasks)
+
+            for item in res:
+                pbar.update(total_days)
+                dividend_payouts.extend(item)
+            self._logger.info(
+                f"Retrieved {len(dividend_payouts)} dividends for {assets} in {total_duration:.2f}s. "
+                f"Total requests time: {total_requests_duration:.2f}s",
+                total_duration=total_duration, requests_duration=total_requests_duration
+            )
+
+        return dividend_payouts
+
+    async def get_splits(self, assets: list[ExchangeAsset],
+                         asset_service: AssetService,
+                         date_from: datetime.datetime,
+                         date_to: datetime.datetime,
+                         ) -> list[DividendPayout]:
+        async def fetch_historical(asset: ExchangeAsset, asset_service: AssetService,
+                                   start_date: datetime.datetime,
+                                   end_date: datetime.datetime) -> list[DividendPayout]:
+            try:
+                credentials = grpc.ssl_channel_credentials()
+                async with grpc.aio.secure_channel(self._server_url, credentials) as channel:
+
+                    result = await self._fetch_splits_data(channel=channel,
+                                                           asset_service=asset_service,
+                                                           date_from=start_date,
+                                                           date_to=end_date,
+                                                           asset=asset)
+                    return result
+            except Exception as e:
+                self._logger.exception(
+                    f"Exception fetching splits data for symbol {asset.symbol}, date_from={start_date}, date_to={end_date}. Skipping."
+                )
+                return []
+
+        total_days = (date_to - date_from).days
+        splits = []
+        with progressbar(length=len(assets) * total_days, label="Downloading splits data from GRPC",
+                         file=sys.stdout) as pbar:
+            tasks = [fetch_historical(
+                asset=asset, asset_service=asset_service, start_date=date_from, end_date=date_to
+            ) for asset in assets]
+            total_duration = 0
+            total_requests_duration = 0
+            res = await asyncio.gather(*tasks)
+
+            for item in res:
+                pbar.update(total_days)
+                splits.extend(item)
+            self._logger.info(
+                f"Retrieved {len(splits)} dividends for {assets} in {total_duration:.2f}s. "
+                f"Total requests time: {total_requests_duration:.2f}s",
+                total_duration=total_duration, requests_duration=total_requests_duration
+            )
+
+        return splits
 
     async def get_constituents(self, index: str) -> pl.DataFrame:
         raise NotImplementedError("Finam Trade API does not publish index constituents")

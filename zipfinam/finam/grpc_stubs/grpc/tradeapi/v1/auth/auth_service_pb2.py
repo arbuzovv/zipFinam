@@ -27,7 +27,7 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 from zipfinam.finam.grpc_stubs.grpc.gateway.protoc_gen_openapiv2.options import annotations_pb2 as grpc_dot_gateway_dot_protoc__gen__openapiv2_dot_options_dot_annotations__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(grpc/tradeapi/v1/auth/auth_service.proto\x12\x15grpc.tradeapi.v1.auth\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a;grpc/gateway/protoc_gen_openapiv2/options/annotations.proto\"\x1d\n\x0b\x41uthRequest\x12\x0e\n\x06secret\x18\x01 \x01(\t\"\x1d\n\x0c\x41uthResponse\x12\r\n\x05token\x18\x01 \x01(\t\"$\n\x13TokenDetailsRequest\x12\r\n\x05token\x18\x01 \x01(\t\"\xda\x01\n\x14TokenDetailsResponse\x12.\n\ncreated_at\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nexpires_at\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12;\n\x0emd_permissions\x18\x03 \x03(\x0b\x32#.grpc.tradeapi.v1.auth.MDPermission\x12\x13\n\x0b\x61\x63\x63ount_ids\x18\x04 \x03(\t\x12\x10\n\x08readonly\x18\x05 \x01(\x08\"\x8d\x03\n\x0cMDPermission\x12\x43\n\x0bquote_level\x18\x01 \x01(\x0e\x32..grpc.tradeapi.v1.auth.MDPermission.QuoteLevel\x12\x15\n\rdelay_minutes\x18\x02 \x01(\x05\x12\r\n\x03mic\x18\x03 \x01(\tH\x00\x12\x11\n\x07\x63ountry\x18\x04 \x01(\tH\x00\x12\x13\n\tcontinent\x18\x05 \x01(\tH\x00\x12\x13\n\tworldwide\x18\x06 \x01(\x08H\x00\"\xc7\x01\n\nQuoteLevel\x12\x1b\n\x17QUOTE_LEVEL_UNSPECIFIED\x10\x00\x12\x1a\n\x16QUOTE_LEVEL_LAST_PRICE\x10\x01\x12\x1e\n\x1aQUOTE_LEVEL_BEST_BID_OFFER\x10\x02\x12\x1f\n\x1bQUOTE_LEVEL_DEPTH_OF_MARKET\x10\x03\x12\x1d\n\x19QUOTE_LEVEL_DEPTH_OF_BOOK\x10\x04\x12 \n\x1cQUOTE_LEVEL_ACCESS_FORBIDDEN\x10\x05\x42\x0b\n\tcondition\",\n\x1aSubscribeJwtRenewalRequest\x12\x0e\n\x06secret\x18\x01 \x01(\t\",\n\x1bSubscribeJwtRenewalResponse\x12\r\n\x05token\x18\x01 \x01(\t2\x82\x03\n\x0b\x41uthService\x12h\n\x04\x41uth\x12\".grpc.tradeapi.v1.auth.AuthRequest\x1a#.grpc.tradeapi.v1.auth.AuthResponse\"\x17\x82\xd3\xe4\x93\x02\x11\"\x0c/v1/sessions:\x01*\x12\x88\x01\n\x0cTokenDetails\x12*.grpc.tradeapi.v1.auth.TokenDetailsRequest\x1a+.grpc.tradeapi.v1.auth.TokenDetailsResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\"\x14/v1/sessions/details:\x01*\x12~\n\x13SubscribeJwtRenewal\x12\x31.grpc.tradeapi.v1.auth.SubscribeJwtRenewalRequest\x1a\x32.grpc.tradeapi.v1.auth.SubscribeJwtRenewalResponse0\x01\x42\xbf\x03P\x01Z\x1etrade_api/v1/auth/auth_service\x92\x41\x99\x03\x12P\n#{{auth_service.swagger.info.title}}\x12){{auth_service.swagger.info.description}}*\x02\x01\x02R!\n\x07\x64\x65\x66\x61ult\x12\x16\x12\x14\n\x12\x1a\x10googletypeStatusR.\n\x03\x35\x30\x30\x12\'\n%{{auth_service.swagger.response.500}}R.\n\x03\x35\x30\x33\x12\'\n%{{auth_service.swagger.response.503}}R.\n\x03\x34\x32\x39\x12\'\n%{{auth_service.swagger.response.429}}R.\n\x03\x34\x30\x31\x12\'\n%{{auth_service.swagger.response.401}}R.\n\x03\x35\x30\x34\x12\'\n%{{auth_service.swagger.response.504}}R.\n\x03\x34\x30\x30\x12\'\n%{{auth_service.swagger.response.400}}b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(grpc/tradeapi/v1/auth/auth_service.proto\x12\x15grpc.tradeapi.v1.auth\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a;grpc/gateway/protoc_gen_openapiv2/options/annotations.proto\"4\n\x0b\x41uthRequest\x12\x0e\n\x06secret\x18\x01 \x01(\t\x12\x15\n\rsource_app_id\x18\x02 \x01(\t\"\x1d\n\x0c\x41uthResponse\x12\r\n\x05token\x18\x01 \x01(\t\"$\n\x13TokenDetailsRequest\x12\r\n\x05token\x18\x01 \x01(\t\"\xda\x01\n\x14TokenDetailsResponse\x12.\n\ncreated_at\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nexpires_at\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12;\n\x0emd_permissions\x18\x03 \x03(\x0b\x32#.grpc.tradeapi.v1.auth.MDPermission\x12\x13\n\x0b\x61\x63\x63ount_ids\x18\x04 \x03(\t\x12\x10\n\x08readonly\x18\x05 \x01(\x08\"\x8d\x03\n\x0cMDPermission\x12\x43\n\x0bquote_level\x18\x01 \x01(\x0e\x32..grpc.tradeapi.v1.auth.MDPermission.QuoteLevel\x12\x15\n\rdelay_minutes\x18\x02 \x01(\x05\x12\r\n\x03mic\x18\x03 \x01(\tH\x00\x12\x11\n\x07\x63ountry\x18\x04 \x01(\tH\x00\x12\x13\n\tcontinent\x18\x05 \x01(\tH\x00\x12\x13\n\tworldwide\x18\x06 \x01(\x08H\x00\"\xc7\x01\n\nQuoteLevel\x12\x1b\n\x17QUOTE_LEVEL_UNSPECIFIED\x10\x00\x12\x1a\n\x16QUOTE_LEVEL_LAST_PRICE\x10\x01\x12\x1e\n\x1aQUOTE_LEVEL_BEST_BID_OFFER\x10\x02\x12\x1f\n\x1bQUOTE_LEVEL_DEPTH_OF_MARKET\x10\x03\x12\x1d\n\x19QUOTE_LEVEL_DEPTH_OF_BOOK\x10\x04\x12 \n\x1cQUOTE_LEVEL_ACCESS_FORBIDDEN\x10\x05\x42\x0b\n\tcondition\"C\n\x1aSubscribeJwtRenewalRequest\x12\x0e\n\x06secret\x18\x01 \x01(\t\x12\x15\n\rsource_app_id\x18\x02 \x01(\t\",\n\x1bSubscribeJwtRenewalResponse\x12\r\n\x05token\x18\x01 \x01(\t2\x82\x03\n\x0b\x41uthService\x12h\n\x04\x41uth\x12\".grpc.tradeapi.v1.auth.AuthRequest\x1a#.grpc.tradeapi.v1.auth.AuthResponse\"\x17\x82\xd3\xe4\x93\x02\x11\"\x0c/v1/sessions:\x01*\x12\x88\x01\n\x0cTokenDetails\x12*.grpc.tradeapi.v1.auth.TokenDetailsRequest\x1a+.grpc.tradeapi.v1.auth.TokenDetailsResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\"\x14/v1/sessions/details:\x01*\x12~\n\x13SubscribeJwtRenewal\x12\x31.grpc.tradeapi.v1.auth.SubscribeJwtRenewalRequest\x1a\x32.grpc.tradeapi.v1.auth.SubscribeJwtRenewalResponse0\x01\x42\xbf\x03P\x01Z\x1etrade_api/v1/auth/auth_service\x92\x41\x99\x03\x12P\n#{{auth_service.swagger.info.title}}\x12){{auth_service.swagger.info.description}}*\x02\x01\x02R!\n\x07\x64\x65\x66\x61ult\x12\x16\x12\x14\n\x12\x1a\x10googletypeStatusR.\n\x03\x35\x30\x30\x12\'\n%{{auth_service.swagger.response.500}}R.\n\x03\x35\x30\x33\x12\'\n%{{auth_service.swagger.response.503}}R.\n\x03\x34\x32\x39\x12\'\n%{{auth_service.swagger.response.429}}R.\n\x03\x34\x30\x31\x12\'\n%{{auth_service.swagger.response.401}}R.\n\x03\x35\x30\x34\x12\'\n%{{auth_service.swagger.response.504}}R.\n\x03\x34\x30\x30\x12\'\n%{{auth_service.swagger.response.400}}b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -40,21 +40,21 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_AUTHSERVICE'].methods_by_name['TokenDetails']._loaded_options = None
   _globals['_AUTHSERVICE'].methods_by_name['TokenDetails']._serialized_options = b'\202\323\344\223\002\031\"\024/v1/sessions/details:\001*'
   _globals['_AUTHREQUEST']._serialized_start=191
-  _globals['_AUTHREQUEST']._serialized_end=220
-  _globals['_AUTHRESPONSE']._serialized_start=222
-  _globals['_AUTHRESPONSE']._serialized_end=251
-  _globals['_TOKENDETAILSREQUEST']._serialized_start=253
-  _globals['_TOKENDETAILSREQUEST']._serialized_end=289
-  _globals['_TOKENDETAILSRESPONSE']._serialized_start=292
-  _globals['_TOKENDETAILSRESPONSE']._serialized_end=510
-  _globals['_MDPERMISSION']._serialized_start=513
-  _globals['_MDPERMISSION']._serialized_end=910
-  _globals['_MDPERMISSION_QUOTELEVEL']._serialized_start=698
-  _globals['_MDPERMISSION_QUOTELEVEL']._serialized_end=897
-  _globals['_SUBSCRIBEJWTRENEWALREQUEST']._serialized_start=912
-  _globals['_SUBSCRIBEJWTRENEWALREQUEST']._serialized_end=956
-  _globals['_SUBSCRIBEJWTRENEWALRESPONSE']._serialized_start=958
-  _globals['_SUBSCRIBEJWTRENEWALRESPONSE']._serialized_end=1002
-  _globals['_AUTHSERVICE']._serialized_start=1005
-  _globals['_AUTHSERVICE']._serialized_end=1391
+  _globals['_AUTHREQUEST']._serialized_end=243
+  _globals['_AUTHRESPONSE']._serialized_start=245
+  _globals['_AUTHRESPONSE']._serialized_end=274
+  _globals['_TOKENDETAILSREQUEST']._serialized_start=276
+  _globals['_TOKENDETAILSREQUEST']._serialized_end=312
+  _globals['_TOKENDETAILSRESPONSE']._serialized_start=315
+  _globals['_TOKENDETAILSRESPONSE']._serialized_end=533
+  _globals['_MDPERMISSION']._serialized_start=536
+  _globals['_MDPERMISSION']._serialized_end=933
+  _globals['_MDPERMISSION_QUOTELEVEL']._serialized_start=721
+  _globals['_MDPERMISSION_QUOTELEVEL']._serialized_end=920
+  _globals['_SUBSCRIBEJWTRENEWALREQUEST']._serialized_start=935
+  _globals['_SUBSCRIBEJWTRENEWALREQUEST']._serialized_end=1002
+  _globals['_SUBSCRIBEJWTRENEWALRESPONSE']._serialized_start=1004
+  _globals['_SUBSCRIBEJWTRENEWALRESPONSE']._serialized_end=1048
+  _globals['_AUTHSERVICE']._serialized_start=1051
+  _globals['_AUTHSERVICE']._serialized_end=1437
 # @@protoc_insertion_point(module_scope)
