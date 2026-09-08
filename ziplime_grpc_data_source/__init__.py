@@ -5,10 +5,10 @@ import pathlib
 import shutil
 
 from ziplime_grpc_data_source.grpc_data_source import GrpcDataSource
-from ziplime_grpc_data_source.grpc_asset_data_source import GrpcAssetDataSource
+from ziplime_grpc_data_source.finam_asset_data_source import FinamAssetDataSource
 
 __version__ = "0.1.1"
-__all__ = ["GrpcDataSource", "GrpcAssetDataSource"]
+__all__ = ["GrpcDataSource", "FinamAssetDataSource"]
 
 
 def _install_assets() -> None:

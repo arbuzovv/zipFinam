@@ -5,7 +5,7 @@ import warnings
 
 from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1.assets import assets_service_pb2 as grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2
 
-GRPC_GENERATED_VERSION = '1.74.0'
+GRPC_GENERATED_VERSION = '1.78.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in grpc/tradeapi/v1/assets/assets_service_pb2_grpc.py depends on'
+        + ' but the generated code in grpc/tradeapi/v1/assets/assets_service_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -26,7 +26,16 @@ if _version_not_supported:
 
 
 class AssetsServiceStub(object):
+    """scope:ru,ny,cy,cy_mt5
+    {{assets_service.service.assets_service.comment}}
+    """
+
     def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
         self.Exchanges = channel.unary_unary(
                 '/grpc.tradeapi.v1.assets.AssetsService/Exchanges',
                 request_serializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.ExchangesRequest.SerializeToString,
@@ -36,6 +45,11 @@ class AssetsServiceStub(object):
                 '/grpc.tradeapi.v1.assets.AssetsService/Assets',
                 request_serializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.AssetsRequest.SerializeToString,
                 response_deserializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.AssetsResponse.FromString,
+                _registered_method=True)
+        self.AllAssets = channel.unary_unary(
+                '/grpc.tradeapi.v1.assets.AssetsService/AllAssets',
+                request_serializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.AllAssetsRequest.SerializeToString,
+                response_deserializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.AllAssetsResponse.FromString,
                 _registered_method=True)
         self.GetAsset = channel.unary_unary(
                 '/grpc.tradeapi.v1.assets.AssetsService/GetAsset',
@@ -62,40 +76,86 @@ class AssetsServiceStub(object):
                 request_serializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.ClockRequest.SerializeToString,
                 response_deserializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.ClockResponse.FromString,
                 _registered_method=True)
+        self.GetConstituents = channel.unary_unary(
+                '/grpc.tradeapi.v1.assets.AssetsService/GetConstituents',
+                request_serializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.GetConstituentsRequest.SerializeToString,
+                response_deserializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.GetConstituentsResponse.FromString,
+                _registered_method=True)
 
 
 class AssetsServiceServicer(object):
+    """scope:ru,ny,cy,cy_mt5
+    {{assets_service.service.assets_service.comment}}
+    """
+
     def Exchanges(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{assets_service.service.rpc.exchanges.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def Assets(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{assets_service.service.rpc.assets.comment}}
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def AllAssets(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{assets_service.service.rpc.all_assets.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def GetAsset(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{assets_service.service.rpc.get_asset.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def GetAssetParams(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{assets_service.service.rpc.get_asset_params.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def OptionsChain(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{assets_service.service.rpc.options_chain.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def Schedule(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{assets_service.service.rpc.schedule.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def Clock(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{assets_service.service.rpc.clock.comment}}
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetConstituents(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{assets_service.service.rpc.constituents.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -112,6 +172,11 @@ def add_AssetsServiceServicer_to_server(servicer, server):
                     servicer.Assets,
                     request_deserializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.AssetsRequest.FromString,
                     response_serializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.AssetsResponse.SerializeToString,
+            ),
+            'AllAssets': grpc.unary_unary_rpc_method_handler(
+                    servicer.AllAssets,
+                    request_deserializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.AllAssetsRequest.FromString,
+                    response_serializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.AllAssetsResponse.SerializeToString,
             ),
             'GetAsset': grpc.unary_unary_rpc_method_handler(
                     servicer.GetAsset,
@@ -138,6 +203,11 @@ def add_AssetsServiceServicer_to_server(servicer, server):
                     request_deserializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.ClockRequest.FromString,
                     response_serializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.ClockResponse.SerializeToString,
             ),
+            'GetConstituents': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetConstituents,
+                    request_deserializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.GetConstituentsRequest.FromString,
+                    response_serializer=grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.GetConstituentsResponse.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'grpc.tradeapi.v1.assets.AssetsService', rpc_method_handlers)
@@ -147,6 +217,10 @@ def add_AssetsServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class AssetsService(object):
+    """scope:ru,ny,cy,cy_mt5
+    {{assets_service.service.assets_service.comment}}
+    """
+
     @staticmethod
     def Exchanges(request,
             target,
@@ -191,6 +265,33 @@ class AssetsService(object):
             '/grpc.tradeapi.v1.assets.AssetsService/Assets',
             grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.AssetsRequest.SerializeToString,
             grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.AssetsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AllAssets(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/grpc.tradeapi.v1.assets.AssetsService/AllAssets',
+            grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.AllAssetsRequest.SerializeToString,
+            grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.AllAssetsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -326,6 +427,33 @@ class AssetsService(object):
             '/grpc.tradeapi.v1.assets.AssetsService/Clock',
             grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.ClockRequest.SerializeToString,
             grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.ClockResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetConstituents(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/grpc.tradeapi.v1.assets.AssetsService/GetConstituents',
+            grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.GetConstituentsRequest.SerializeToString,
+            grpc_dot_tradeapi_dot_v1_dot_assets_dot_assets__service__pb2.GetConstituentsResponse.FromString,
             options,
             channel_credentials,
             insecure,

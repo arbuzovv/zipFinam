@@ -27,7 +27,7 @@ from google.type import decimal_pb2 as google_dot_type_dot_decimal__pb2
 from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1 import side_pb2 as grpc_dot_tradeapi_dot_v1_dot_side__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1cgrpc/tradeapi/v1/trade.proto\x12\x10grpc.tradeapi.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19google/type/decimal.proto\x1a\x1bgrpc/tradeapi/v1/side.proto\"\xf4\x01\n\x0c\x41\x63\x63ountTrade\x12\x10\n\x08trade_id\x18\x01 \x01(\t\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12#\n\x05price\x18\x03 \x01(\x0b\x32\x14.google.type.Decimal\x12\"\n\x04size\x18\x04 \x01(\x0b\x32\x14.google.type.Decimal\x12$\n\x04side\x18\x05 \x01(\x0e\x32\x16.grpc.tradeapi.v1.Side\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x10\n\x08order_id\x18\x07 \x01(\t\x12\x12\n\naccount_id\x18\x08 \x01(\tB\x16P\x01Z\x12trade_api/v1/tradeb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1cgrpc/tradeapi/v1/trade.proto\x12\x10grpc.tradeapi.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19google/type/decimal.proto\x1a\x1bgrpc/tradeapi/v1/side.proto\"\xc7\x02\n\x0c\x41\x63\x63ountTrade\x12\x10\n\x08trade_id\x18\x01 \x01(\t\x12\x0e\n\x06symbol\x18\x02 \x01(\t\x12#\n\x05price\x18\x03 \x01(\x0b\x32\x14.google.type.Decimal\x12\"\n\x04size\x18\x04 \x01(\x0b\x32\x14.google.type.Decimal\x12$\n\x04side\x18\x05 \x01(\x0e\x32\x16.grpc.tradeapi.v1.Side\x12-\n\ttimestamp\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x10\n\x08order_id\x18\x07 \x01(\t\x12\x12\n\naccount_id\x18\x08 \x01(\t\x12\x0f\n\x07\x63omment\x18\t \x01(\t\x12.\n\x10\x61\x63\x63rued_interest\x18\n \x01(\x0b\x32\x14.google.type.Decimal\x12\x10\n\x08\x63urrency\x18\x0b \x01(\tB\x16P\x01Z\x12trade_api/v1/tradeb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -36,5 +36,5 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'P\001Z\022trade_api/v1/trade'
   _globals['_ACCOUNTTRADE']._serialized_start=140
-  _globals['_ACCOUNTTRADE']._serialized_end=384
+  _globals['_ACCOUNTTRADE']._serialized_end=467
 # @@protoc_insertion_point(module_scope)

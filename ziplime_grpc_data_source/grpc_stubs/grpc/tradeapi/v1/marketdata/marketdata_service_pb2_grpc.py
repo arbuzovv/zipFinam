@@ -5,7 +5,7 @@ import warnings
 
 from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1.marketdata import marketdata_service_pb2 as grpc_dot_tradeapi_dot_v1_dot_marketdata_dot_marketdata__service__pb2
 
-GRPC_GENERATED_VERSION = '1.74.0'
+GRPC_GENERATED_VERSION = '1.78.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in grpc/tradeapi/v1/marketdata/marketdata_service_pb2_grpc.py depends on'
+        + ' but the generated code in grpc/tradeapi/v1/marketdata/marketdata_service_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -26,7 +26,16 @@ if _version_not_supported:
 
 
 class MarketDataServiceStub(object):
+    """scope:ru,ny,cy,cy_mt5
+    {{marketdata_service.service.marketdata_service.comment}}
+    """
+
     def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
         self.Bars = channel.unary_unary(
                 '/grpc.tradeapi.v1.marketdata.MarketDataService/Bars',
                 request_serializer=grpc_dot_tradeapi_dot_v1_dot_marketdata_dot_marketdata__service__pb2.BarsRequest.SerializeToString,
@@ -70,42 +79,70 @@ class MarketDataServiceStub(object):
 
 
 class MarketDataServiceServicer(object):
+    """scope:ru,ny,cy,cy_mt5
+    {{marketdata_service.service.marketdata_service.comment}}
+    """
+
     def Bars(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{marketdata_service.service.marketdata_service.rpc.bars.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def LastQuote(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{marketdata_service.service.marketdata_service.rpc.last_quote.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def OrderBook(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{marketdata_service.service.marketdata_service.rpc.orderbook.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def LatestTrades(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{marketdata_service.service.marketdata_service.rpc.latest_trades.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeQuote(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{marketdata_service.service.marketdata_service.rpc.subscribe_quote.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeOrderBook(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{marketdata_service.service.marketdata_service.rpc.subscribe_orderbook.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeLatestTrades(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{marketdata_service.service.marketdata_service.rpc.subscribe_latest_trades.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeBars(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{marketdata_service.service.marketdata_service.rpc.subscribe_bars.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -160,7 +197,12 @@ def add_MarketDataServiceServicer_to_server(servicer, server):
     server.add_registered_method_handlers('grpc.tradeapi.v1.marketdata.MarketDataService', rpc_method_handlers)
 
 
+ # This class is part of an EXPERIMENTAL API.
 class MarketDataService(object):
+    """scope:ru,ny,cy,cy_mt5
+    {{marketdata_service.service.marketdata_service.comment}}
+    """
+
     @staticmethod
     def Bars(request,
             target,

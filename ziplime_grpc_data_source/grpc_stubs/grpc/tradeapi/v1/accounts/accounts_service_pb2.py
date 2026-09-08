@@ -29,50 +29,55 @@ from google.type import interval_pb2 as google_dot_type_dot_interval__pb2
 from google.type import money_pb2 as google_dot_type_dot_money__pb2
 from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1 import side_pb2 as grpc_dot_tradeapi_dot_v1_dot_side__pb2
 from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1 import trade_pb2 as grpc_dot_tradeapi_dot_v1_dot_trade__pb2
+from ziplime_grpc_data_source.grpc_stubs.grpc.gateway.protoc_gen_openapiv2.options import annotations_pb2 as grpc_dot_gateway_dot_protoc__gen__openapiv2_dot_options_dot_annotations__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n0grpc/tradeapi/v1/accounts/accounts_service.proto\x12\x19grpc.tradeapi.v1.accounts\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19google/type/decimal.proto\x1a\x1agoogle/type/interval.proto\x1a\x17google/type/money.proto\x1a\x1bgrpc/tradeapi/v1/side.proto\x1a\x1cgrpc/tradeapi/v1/trade.proto\"\'\n\x11GetAccountRequest\x12\x12\n\naccount_id\x18\x01 \x01(\t\"\xb1\x03\n\x12GetAccountResponse\x12\x12\n\naccount_id\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x0e\n\x06status\x18\x03 \x01(\t\x12$\n\x06\x65quity\x18\x04 \x01(\x0b\x32\x14.google.type.Decimal\x12/\n\x11unrealized_profit\x18\x05 \x01(\x0b\x32\x14.google.type.Decimal\x12\x36\n\tpositions\x18\x06 \x03(\x0b\x32#.grpc.tradeapi.v1.accounts.Position\x12 \n\x04\x63\x61sh\x18\x07 \x03(\x0b\x32\x12.google.type.Money\x12\x35\n\x0cportfolio_mc\x18\x08 \x01(\x0b\x32\x1d.grpc.tradeapi.v1.accounts.MCH\x00\x12\x37\n\rportfolio_mct\x18\t \x01(\x0b\x32\x1e.grpc.tradeapi.v1.accounts.MCTH\x00\x12;\n\x0fportfolio_forts\x18\n \x01(\x0b\x32 .grpc.tradeapi.v1.accounts.FORTSH\x00\x42\x0b\n\tportfolio\"\x92\x01\n\x02MC\x12,\n\x0e\x61vailable_cash\x18\x01 \x01(\x0b\x32\x14.google.type.Decimal\x12,\n\x0einitial_margin\x18\x02 \x01(\x0b\x32\x14.google.type.Decimal\x12\x30\n\x12maintenance_margin\x18\x03 \x01(\x0b\x32\x14.google.type.Decimal\"\x05\n\x03MCT\"c\n\x05\x46ORTS\x12,\n\x0e\x61vailable_cash\x18\x01 \x01(\x0b\x32\x14.google.type.Decimal\x12,\n\x0emoney_reserved\x18\x02 \x01(\x0b\x32\x14.google.type.Decimal\"[\n\rTradesRequest\x12\x12\n\naccount_id\x18\x01 \x01(\t\x12\r\n\x05limit\x18\x02 \x01(\x05\x12\'\n\x08interval\x18\x03 \x01(\x0b\x32\x15.google.type.Interval\"@\n\x0eTradesResponse\x12.\n\x06trades\x18\x01 \x03(\x0b\x32\x1e.grpc.tradeapi.v1.AccountTrade\"a\n\x13TransactionsRequest\x12\x12\n\naccount_id\x18\x01 \x01(\t\x12\r\n\x05limit\x18\x02 \x01(\x05\x12\'\n\x08interval\x18\x03 \x01(\x0b\x32\x15.google.type.Interval\"T\n\x14TransactionsResponse\x12<\n\x0ctransactions\x18\x01 \x03(\x0b\x32&.grpc.tradeapi.v1.accounts.Transaction\"\xa5\x02\n\x08Position\x12\x0e\n\x06symbol\x18\x01 \x01(\t\x12&\n\x08quantity\x18\x02 \x01(\x0b\x32\x14.google.type.Decimal\x12+\n\raverage_price\x18\x03 \x01(\x0b\x32\x14.google.type.Decimal\x12+\n\rcurrent_price\x18\x04 \x01(\x0b\x32\x14.google.type.Decimal\x12\x30\n\x12maintenance_margin\x18\x05 \x01(\x0b\x32\x14.google.type.Decimal\x12\'\n\tdaily_pnl\x18\x06 \x01(\x0b\x32\x14.google.type.Decimal\x12,\n\x0eunrealized_pnl\x18\x07 \x01(\x0b\x32\x14.google.type.Decimal\"\x85\x05\n\x0bTransaction\x12\n\n\x02id\x18\x01 \x01(\t\x12\x14\n\x08\x63\x61tegory\x18\x02 \x01(\tB\x02\x18\x01\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0e\n\x06symbol\x18\x05 \x01(\t\x12\"\n\x06\x63hange\x18\x06 \x01(\x0b\x32\x12.google.type.Money\x12;\n\x05trade\x18\x07 \x01(\x0b\x32,.grpc.tradeapi.v1.accounts.Transaction.Trade\x12X\n\x14transaction_category\x18\x08 \x01(\x0e\x32:.grpc.tradeapi.v1.accounts.Transaction.TransactionCategory\x12\x18\n\x10transaction_name\x18\t \x01(\t\x1a\x80\x01\n\x05Trade\x12\"\n\x04size\x18\x01 \x01(\x0b\x32\x14.google.type.Decimal\x12#\n\x05price\x18\x02 \x01(\x0b\x32\x14.google.type.Decimal\x12.\n\x10\x61\x63\x63rued_interest\x18\x03 \x01(\x0b\x32\x14.google.type.Decimal\"\xbc\x01\n\x13TransactionCategory\x12\n\n\x06OTHERS\x10\x00\x12\x0b\n\x07\x44\x45POSIT\x10\x01\x12\x0c\n\x08WITHDRAW\x10\x02\x12\n\n\x06INCOME\x10\x05\x12\x0e\n\nCOMMISSION\x10\x07\x12\x07\n\x03TAX\x10\x08\x12\x0f\n\x0bINHERITANCE\x10\t\x12\x0c\n\x08TRANSFER\x10\x0b\x12\x18\n\x14\x43ONTRACT_TERMINATION\x10\x0c\x12\x0c\n\x08OUTCOMES\x10\r\x12\x08\n\x04\x46INE\x10\x0f\x12\x08\n\x04LOAN\x10\x13\x32\xcc\x03\n\x0f\x41\x63\x63ountsService\x12\x8c\x01\n\nGetAccount\x12,.grpc.tradeapi.v1.accounts.GetAccountRequest\x1a-.grpc.tradeapi.v1.accounts.GetAccountResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/accounts/{account_id}\x12\x87\x01\n\x06Trades\x12(.grpc.tradeapi.v1.accounts.TradesRequest\x1a).grpc.tradeapi.v1.accounts.TradesResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /v1/accounts/{account_id}/trades\x12\x9f\x01\n\x0cTransactions\x12..grpc.tradeapi.v1.accounts.TransactionsRequest\x1a/.grpc.tradeapi.v1.accounts.TransactionsResponse\".\x82\xd3\xe4\x93\x02(\x12&/v1/accounts/{account_id}/transactionsB*P\x01Z&trade_api/v1/accounts/accounts_serviceb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n0grpc/tradeapi/v1/accounts/accounts_service.proto\x12\x19grpc.tradeapi.v1.accounts\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19google/type/decimal.proto\x1a\x1agoogle/type/interval.proto\x1a\x17google/type/money.proto\x1a\x1bgrpc/tradeapi/v1/side.proto\x1a\x1cgrpc/tradeapi/v1/trade.proto\x1a;grpc/gateway/protoc_gen_openapiv2/options/annotations.proto\"\'\n\x11GetAccountRequest\x12\x12\n\naccount_id\x18\x01 \x01(\t\"\x91\x05\n\x12GetAccountResponse\x12\x12\n\naccount_id\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\x0e\n\x06status\x18\x03 \x01(\t\x12$\n\x06\x65quity\x18\x04 \x01(\x0b\x32\x14.google.type.Decimal\x12/\n\x11unrealized_profit\x18\x05 \x01(\x0b\x32\x14.google.type.Decimal\x12\x36\n\tpositions\x18\x06 \x03(\x0b\x32#.grpc.tradeapi.v1.accounts.Position\x12 \n\x04\x63\x61sh\x18\x07 \x03(\x0b\x32\x12.google.type.Money\x12\x35\n\x0cportfolio_mc\x18\x08 \x01(\x0b\x32\x1d.grpc.tradeapi.v1.accounts.MCH\x00\x12\x37\n\rportfolio_mct\x18\t \x01(\x0b\x32\x1e.grpc.tradeapi.v1.accounts.MCTH\x00\x12;\n\x0fportfolio_forts\x18\n \x01(\x0b\x32 .grpc.tradeapi.v1.accounts.FORTSH\x00\x12\x37\n\rportfolio_mt5\x18\x0e \x01(\x0b\x32\x1e.grpc.tradeapi.v1.accounts.MT5H\x00\x12\x35\n\x11open_account_date\x18\x0b \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x34\n\x10\x66irst_trade_date\x18\x0c \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x38\n\x14\x66irst_non_trade_date\x18\r \x01(\x0b\x32\x1a.google.protobuf.TimestampB\x0b\n\tportfolio\"\x92\x01\n\x02MC\x12,\n\x0e\x61vailable_cash\x18\x01 \x01(\x0b\x32\x14.google.type.Decimal\x12,\n\x0einitial_margin\x18\x02 \x01(\x0b\x32\x14.google.type.Decimal\x12\x30\n\x12maintenance_margin\x18\x03 \x01(\x0b\x32\x14.google.type.Decimal\"\x05\n\x03MCT\"c\n\x05\x46ORTS\x12,\n\x0e\x61vailable_cash\x18\x01 \x01(\x0b\x32\x14.google.type.Decimal\x12,\n\x0emoney_reserved\x18\x02 \x01(\x0b\x32\x14.google.type.Decimal\"\xcb\x01\n\x03MT5\x12,\n\x0einitial_margin\x18\x01 \x01(\x0b\x32\x14.google.type.Decimal\x12-\n\x0fmargin_leverage\x18\x02 \x01(\x0b\x32\x14.google.type.Decimal\x12(\n\ncommission\x18\x03 \x01(\x0b\x32\x14.google.type.Decimal\x12=\n\x0bmargin_mode\x18\x04 \x01(\x0e\x32(.grpc.tradeapi.v1.accounts.MT5MarginMode\"[\n\rTradesRequest\x12\x12\n\naccount_id\x18\x01 \x01(\t\x12\r\n\x05limit\x18\x02 \x01(\x05\x12\'\n\x08interval\x18\x03 \x01(\x0b\x32\x15.google.type.Interval\"@\n\x0eTradesResponse\x12.\n\x06trades\x18\x01 \x03(\x0b\x32\x1e.grpc.tradeapi.v1.AccountTrade\"a\n\x13TransactionsRequest\x12\x12\n\naccount_id\x18\x01 \x01(\t\x12\r\n\x05limit\x18\x02 \x01(\x05\x12\'\n\x08interval\x18\x03 \x01(\x0b\x32\x15.google.type.Interval\"T\n\x14TransactionsResponse\x12<\n\x0ctransactions\x18\x01 \x03(\x0b\x32&.grpc.tradeapi.v1.accounts.Transaction\"\xa5\x02\n\x08Position\x12\x0e\n\x06symbol\x18\x01 \x01(\t\x12&\n\x08quantity\x18\x02 \x01(\x0b\x32\x14.google.type.Decimal\x12+\n\raverage_price\x18\x03 \x01(\x0b\x32\x14.google.type.Decimal\x12+\n\rcurrent_price\x18\x04 \x01(\x0b\x32\x14.google.type.Decimal\x12\x30\n\x12maintenance_margin\x18\x05 \x01(\x0b\x32\x14.google.type.Decimal\x12\'\n\tdaily_pnl\x18\x06 \x01(\x0b\x32\x14.google.type.Decimal\x12,\n\x0eunrealized_pnl\x18\x07 \x01(\x0b\x32\x14.google.type.Decimal\"\xaf\x05\n\x0bTransaction\x12\n\n\x02id\x18\x01 \x01(\t\x12\x14\n\x08\x63\x61tegory\x18\x02 \x01(\tB\x02\x18\x01\x12-\n\ttimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x0e\n\x06symbol\x18\x05 \x01(\t\x12\"\n\x06\x63hange\x18\x06 \x01(\x0b\x32\x12.google.type.Money\x12;\n\x05trade\x18\x07 \x01(\x0b\x32,.grpc.tradeapi.v1.accounts.Transaction.Trade\x12X\n\x14transaction_category\x18\x08 \x01(\x0e\x32:.grpc.tradeapi.v1.accounts.Transaction.TransactionCategory\x12\x18\n\x10transaction_name\x18\t \x01(\t\x12(\n\nchange_qty\x18\n \x01(\x0b\x32\x14.google.type.Decimal\x1a\x80\x01\n\x05Trade\x12\"\n\x04size\x18\x01 \x01(\x0b\x32\x14.google.type.Decimal\x12#\n\x05price\x18\x02 \x01(\x0b\x32\x14.google.type.Decimal\x12.\n\x10\x61\x63\x63rued_interest\x18\x03 \x01(\x0b\x32\x14.google.type.Decimal\"\xbc\x01\n\x13TransactionCategory\x12\n\n\x06OTHERS\x10\x00\x12\x0b\n\x07\x44\x45POSIT\x10\x01\x12\x0c\n\x08WITHDRAW\x10\x02\x12\n\n\x06INCOME\x10\x05\x12\x0e\n\nCOMMISSION\x10\x07\x12\x07\n\x03TAX\x10\x08\x12\x0f\n\x0bINHERITANCE\x10\t\x12\x0c\n\x08TRANSFER\x10\x0b\x12\x18\n\x14\x43ONTRACT_TERMINATION\x10\x0c\x12\x0c\n\x08OUTCOMES\x10\r\x12\x08\n\x04\x46INE\x10\x0f\x12\x08\n\x04LOAN\x10\x13*x\n\rMT5MarginMode\x12\r\n\tUNDEFINED\x10\x00\x12\x16\n\x12MARGIN_MODE_RETAIL\x10\x01\x12!\n\x1dMARGIN_MODE_EXCHANGE_DISCOUNT\x10\x02\x12\x1d\n\x19MARGIN_MODE_RETAIL_HEDGED\x10\x03\x32\xb1\x06\n\x0f\x41\x63\x63ountsService\x12\xa4\x01\n\nGetAccount\x12,.grpc.tradeapi.v1.accounts.GetAccountRequest\x1a-.grpc.tradeapi.v1.accounts.GetAccountResponse\"9\x92\x41\x15\x62\x13\n\x11\n\rAuthorization\x12\x00\x82\xd3\xe4\x93\x02\x1b\x12\x19/v1/accounts/{account_id}\x12\xf1\x01\n\x06Trades\x12(.grpc.tradeapi.v1.accounts.TradesRequest\x1a).grpc.tradeapi.v1.accounts.TradesResponse\"\x91\x01\x92\x41\x66JO\n\x03\x34\x30\x30\x12H\nF{{accounts_service.service.rpc.trades.option.swagger.description.400}}b\x13\n\x11\n\rAuthorization\x12\x00\x82\xd3\xe4\x93\x02\"\x12 /v1/accounts/{account_id}/trades\x12\x8f\x02\n\x0cTransactions\x12..grpc.tradeapi.v1.accounts.TransactionsRequest\x1a/.grpc.tradeapi.v1.accounts.TransactionsResponse\"\x9d\x01\x92\x41lJU\n\x03\x34\x30\x30\x12N\nL{{accounts_service.service.rpc.transactions.option.swagger.description.400}}b\x13\n\x11\n\rAuthorization\x12\x00\x82\xd3\xe4\x93\x02(\x12&/v1/accounts/{account_id}/transactions\x12q\n\x10SubscribeAccount\x12,.grpc.tradeapi.v1.accounts.GetAccountRequest\x1a-.grpc.tradeapi.v1.accounts.GetAccountResponse0\x01\x42\xce\x04P\x01Z&trade_api/v1/accounts/accounts_service\x92\x41\xa0\x04\x12X\n\'{{accounts_service.swagger.info.title}}\x12-{{accounts_service.swagger.info.description}}*\x02\x01\x02R!\n\x07\x64\x65\x66\x61ult\x12\x16\x12\x14\n\x12\x1a\x10googletypeStatusR2\n\x03\x35\x30\x30\x12+\n){{accounts_service.swagger.response.500}}R2\n\x03\x35\x30\x33\x12+\n){{accounts_service.swagger.response.503}}R2\n\x03\x34\x32\x39\x12+\n){{accounts_service.swagger.response.429}}R2\n\x03\x34\x30\x31\x12+\n){{accounts_service.swagger.response.401}}R2\n\x03\x35\x30\x34\x12+\n){{accounts_service.swagger.response.504}}R2\n\x03\x34\x30\x34\x12+\n){{accounts_service.swagger.response.404}}Ze\nc\n\rAuthorization\x12R\x08\x02\x12={{accounts_service.swagger.security_definitions.description}}\x1a\rAuthorization \x02\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'grpc.tradeapi.v1.accounts.accounts_service_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
-  _globals['DESCRIPTOR']._serialized_options = b'P\001Z&trade_api/v1/accounts/accounts_service'
+  _globals['DESCRIPTOR']._serialized_options = b'P\001Z&trade_api/v1/accounts/accounts_service\222A\240\004\022X\n\'{{accounts_service.swagger.info.title}}\022-{{accounts_service.swagger.info.description}}*\002\001\002R!\n\007default\022\026\022\024\n\022\032\020googletypeStatusR2\n\003500\022+\n){{accounts_service.swagger.response.500}}R2\n\003503\022+\n){{accounts_service.swagger.response.503}}R2\n\003429\022+\n){{accounts_service.swagger.response.429}}R2\n\003401\022+\n){{accounts_service.swagger.response.401}}R2\n\003504\022+\n){{accounts_service.swagger.response.504}}R2\n\003404\022+\n){{accounts_service.swagger.response.404}}Ze\nc\n\rAuthorization\022R\010\002\022={{accounts_service.swagger.security_definitions.description}}\032\rAuthorization \002'
   _globals['_TRANSACTION'].fields_by_name['category']._loaded_options = None
   _globals['_TRANSACTION'].fields_by_name['category']._serialized_options = b'\030\001'
   _globals['_ACCOUNTSSERVICE'].methods_by_name['GetAccount']._loaded_options = None
-  _globals['_ACCOUNTSSERVICE'].methods_by_name['GetAccount']._serialized_options = b'\202\323\344\223\002\033\022\031/v1/accounts/{account_id}'
+  _globals['_ACCOUNTSSERVICE'].methods_by_name['GetAccount']._serialized_options = b'\222A\025b\023\n\021\n\rAuthorization\022\000\202\323\344\223\002\033\022\031/v1/accounts/{account_id}'
   _globals['_ACCOUNTSSERVICE'].methods_by_name['Trades']._loaded_options = None
-  _globals['_ACCOUNTSSERVICE'].methods_by_name['Trades']._serialized_options = b'\202\323\344\223\002\"\022 /v1/accounts/{account_id}/trades'
+  _globals['_ACCOUNTSSERVICE'].methods_by_name['Trades']._serialized_options = b'\222AfJO\n\003400\022H\nF{{accounts_service.service.rpc.trades.option.swagger.description.400}}b\023\n\021\n\rAuthorization\022\000\202\323\344\223\002\"\022 /v1/accounts/{account_id}/trades'
   _globals['_ACCOUNTSSERVICE'].methods_by_name['Transactions']._loaded_options = None
-  _globals['_ACCOUNTSSERVICE'].methods_by_name['Transactions']._serialized_options = b'\202\323\344\223\002(\022&/v1/accounts/{account_id}/transactions'
-  _globals['_GETACCOUNTREQUEST']._serialized_start=281
-  _globals['_GETACCOUNTREQUEST']._serialized_end=320
-  _globals['_GETACCOUNTRESPONSE']._serialized_start=323
-  _globals['_GETACCOUNTRESPONSE']._serialized_end=756
-  _globals['_MC']._serialized_start=759
-  _globals['_MC']._serialized_end=905
-  _globals['_MCT']._serialized_start=907
-  _globals['_MCT']._serialized_end=912
-  _globals['_FORTS']._serialized_start=914
-  _globals['_FORTS']._serialized_end=1013
-  _globals['_TRADESREQUEST']._serialized_start=1015
-  _globals['_TRADESREQUEST']._serialized_end=1106
-  _globals['_TRADESRESPONSE']._serialized_start=1108
-  _globals['_TRADESRESPONSE']._serialized_end=1172
-  _globals['_TRANSACTIONSREQUEST']._serialized_start=1174
-  _globals['_TRANSACTIONSREQUEST']._serialized_end=1271
-  _globals['_TRANSACTIONSRESPONSE']._serialized_start=1273
-  _globals['_TRANSACTIONSRESPONSE']._serialized_end=1357
-  _globals['_POSITION']._serialized_start=1360
-  _globals['_POSITION']._serialized_end=1653
-  _globals['_TRANSACTION']._serialized_start=1656
-  _globals['_TRANSACTION']._serialized_end=2301
-  _globals['_TRANSACTION_TRADE']._serialized_start=1982
-  _globals['_TRANSACTION_TRADE']._serialized_end=2110
-  _globals['_TRANSACTION_TRANSACTIONCATEGORY']._serialized_start=2113
-  _globals['_TRANSACTION_TRANSACTIONCATEGORY']._serialized_end=2301
-  _globals['_ACCOUNTSSERVICE']._serialized_start=2304
-  _globals['_ACCOUNTSSERVICE']._serialized_end=2764
+  _globals['_ACCOUNTSSERVICE'].methods_by_name['Transactions']._serialized_options = b'\222AlJU\n\003400\022N\nL{{accounts_service.service.rpc.transactions.option.swagger.description.400}}b\023\n\021\n\rAuthorization\022\000\202\323\344\223\002(\022&/v1/accounts/{account_id}/transactions'
+  _globals['_MT5MARGINMODE']._serialized_start=2836
+  _globals['_MT5MARGINMODE']._serialized_end=2956
+  _globals['_GETACCOUNTREQUEST']._serialized_start=342
+  _globals['_GETACCOUNTREQUEST']._serialized_end=381
+  _globals['_GETACCOUNTRESPONSE']._serialized_start=384
+  _globals['_GETACCOUNTRESPONSE']._serialized_end=1041
+  _globals['_MC']._serialized_start=1044
+  _globals['_MC']._serialized_end=1190
+  _globals['_MCT']._serialized_start=1192
+  _globals['_MCT']._serialized_end=1197
+  _globals['_FORTS']._serialized_start=1199
+  _globals['_FORTS']._serialized_end=1298
+  _globals['_MT5']._serialized_start=1301
+  _globals['_MT5']._serialized_end=1504
+  _globals['_TRADESREQUEST']._serialized_start=1506
+  _globals['_TRADESREQUEST']._serialized_end=1597
+  _globals['_TRADESRESPONSE']._serialized_start=1599
+  _globals['_TRADESRESPONSE']._serialized_end=1663
+  _globals['_TRANSACTIONSREQUEST']._serialized_start=1665
+  _globals['_TRANSACTIONSREQUEST']._serialized_end=1762
+  _globals['_TRANSACTIONSRESPONSE']._serialized_start=1764
+  _globals['_TRANSACTIONSRESPONSE']._serialized_end=1848
+  _globals['_POSITION']._serialized_start=1851
+  _globals['_POSITION']._serialized_end=2144
+  _globals['_TRANSACTION']._serialized_start=2147
+  _globals['_TRANSACTION']._serialized_end=2834
+  _globals['_TRANSACTION_TRADE']._serialized_start=2515
+  _globals['_TRANSACTION_TRADE']._serialized_end=2643
+  _globals['_TRANSACTION_TRANSACTIONCATEGORY']._serialized_start=2646
+  _globals['_TRANSACTION_TRANSACTIONCATEGORY']._serialized_end=2834
+  _globals['_ACCOUNTSSERVICE']._serialized_start=2959
+  _globals['_ACCOUNTSSERVICE']._serialized_end=3776
 # @@protoc_insertion_point(module_scope)

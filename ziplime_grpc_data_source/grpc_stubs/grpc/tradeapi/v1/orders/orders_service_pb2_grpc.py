@@ -5,7 +5,7 @@ import warnings
 
 from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1.orders import orders_service_pb2 as grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2
 
-GRPC_GENERATED_VERSION = '1.74.0'
+GRPC_GENERATED_VERSION = '1.78.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in grpc/tradeapi/v1/orders/orders_service_pb2_grpc.py depends on'
+        + ' but the generated code in grpc/tradeapi/v1/orders/orders_service_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -26,7 +26,16 @@ if _version_not_supported:
 
 
 class OrdersServiceStub(object):
+    """scope:ru,ny,cy
+    {{orders_service.service.order_service.comment}}
+    """
+
     def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
         self.PlaceOrder = channel.unary_unary(
                 '/grpc.tradeapi.v1.orders.OrdersService/PlaceOrder',
                 request_serializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.Order.SerializeToString,
@@ -52,31 +61,88 @@ class OrdersServiceStub(object):
                 request_serializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.OrderTradeRequest.SerializeToString,
                 response_deserializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.OrderTradeResponse.FromString,
                 _registered_method=True)
+        self.SubscribeOrders = channel.unary_stream(
+                '/grpc.tradeapi.v1.orders.OrdersService/SubscribeOrders',
+                request_serializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SubscribeOrdersRequest.SerializeToString,
+                response_deserializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SubscribeOrdersResponse.FromString,
+                _registered_method=True)
+        self.SubscribeTrades = channel.unary_stream(
+                '/grpc.tradeapi.v1.orders.OrdersService/SubscribeTrades',
+                request_serializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SubscribeTradesRequest.SerializeToString,
+                response_deserializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SubscribeTradesResponse.FromString,
+                _registered_method=True)
+        self.PlaceSLTPOrder = channel.unary_unary(
+                '/grpc.tradeapi.v1.orders.OrdersService/PlaceSLTPOrder',
+                request_serializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SLTPOrder.SerializeToString,
+                response_deserializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.OrderState.FromString,
+                _registered_method=True)
 
 
 class OrdersServiceServicer(object):
+    """scope:ru,ny,cy
+    {{orders_service.service.order_service.comment}}
+    """
 
     def PlaceOrder(self, request, context):
+        """scope:ru,ny,cy
+        {{orders_service.service.order_service.rpc.place_order.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def CancelOrder(self, request, context):
+        """scope:ru,ny,cy
+        {{orders_service.service.order_service.rpc.cancel_order.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def GetOrders(self, request, context):
+        """scope:ru,ny,cy
+        {{orders_service.service.order_service.rpc.get_orders.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def GetOrder(self, request, context):
+        """scope:ru,ny,cy
+        {{orders_service.service.order_service.rpc.get_order.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeOrderTrade(self, request_iterator, context):
+        """scope:ru,ny,cy
+        {{orders_service.service.order_service.rpc.subscribe_order_trade.comment}}
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SubscribeOrders(self, request, context):
+        """scope:ru,ny,cy
+        {{orders_service.service.order_service.rpc.subscribe_orders.comment}}
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SubscribeTrades(self, request, context):
+        """scope:ru,ny,cy
+        {{orders_service.service.order_service.rpc.subscribe_trades.comment}}
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PlaceSLTPOrder(self, request, context):
+        """scope:ru,ny,cy
+        {{orders_service.service.order_service.rpc.place_sltp_order.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -109,6 +175,21 @@ def add_OrdersServiceServicer_to_server(servicer, server):
                     request_deserializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.OrderTradeRequest.FromString,
                     response_serializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.OrderTradeResponse.SerializeToString,
             ),
+            'SubscribeOrders': grpc.unary_stream_rpc_method_handler(
+                    servicer.SubscribeOrders,
+                    request_deserializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SubscribeOrdersRequest.FromString,
+                    response_serializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SubscribeOrdersResponse.SerializeToString,
+            ),
+            'SubscribeTrades': grpc.unary_stream_rpc_method_handler(
+                    servicer.SubscribeTrades,
+                    request_deserializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SubscribeTradesRequest.FromString,
+                    response_serializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SubscribeTradesResponse.SerializeToString,
+            ),
+            'PlaceSLTPOrder': grpc.unary_unary_rpc_method_handler(
+                    servicer.PlaceSLTPOrder,
+                    request_deserializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SLTPOrder.FromString,
+                    response_serializer=grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.OrderState.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'grpc.tradeapi.v1.orders.OrdersService', rpc_method_handlers)
@@ -118,6 +199,10 @@ def add_OrdersServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class OrdersService(object):
+    """scope:ru,ny,cy
+    {{orders_service.service.order_service.comment}}
+    """
+
     @staticmethod
     def PlaceOrder(request,
             target,
@@ -243,6 +328,87 @@ class OrdersService(object):
             '/grpc.tradeapi.v1.orders.OrdersService/SubscribeOrderTrade',
             grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.OrderTradeRequest.SerializeToString,
             grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.OrderTradeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SubscribeOrders(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/grpc.tradeapi.v1.orders.OrdersService/SubscribeOrders',
+            grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SubscribeOrdersRequest.SerializeToString,
+            grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SubscribeOrdersResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SubscribeTrades(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/grpc.tradeapi.v1.orders.OrdersService/SubscribeTrades',
+            grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SubscribeTradesRequest.SerializeToString,
+            grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SubscribeTradesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def PlaceSLTPOrder(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/grpc.tradeapi.v1.orders.OrdersService/PlaceSLTPOrder',
+            grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.SLTPOrder.SerializeToString,
+            grpc_dot_tradeapi_dot_v1_dot_orders_dot_orders__service__pb2.OrderState.FromString,
             options,
             channel_credentials,
             insecure,

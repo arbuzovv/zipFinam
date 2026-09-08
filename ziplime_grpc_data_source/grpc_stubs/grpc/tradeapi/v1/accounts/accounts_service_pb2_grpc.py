@@ -5,7 +5,7 @@ import warnings
 
 from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1.accounts import accounts_service_pb2 as grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2
 
-GRPC_GENERATED_VERSION = '1.74.0'
+GRPC_GENERATED_VERSION = '1.78.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in grpc/tradeapi/v1/accounts/accounts_service_pb2_grpc.py depends on'
+        + ' but the generated code in grpc/tradeapi/v1/accounts/accounts_service_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -26,7 +26,16 @@ if _version_not_supported:
 
 
 class AccountsServiceStub(object):
+    """scope:ru,ny,cy,cy_mt5
+    {{accounts_service.service.accounts_service.comment}}
+    """
+
     def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
         self.GetAccount = channel.unary_unary(
                 '/grpc.tradeapi.v1.accounts.AccountsService/GetAccount',
                 request_serializer=grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.GetAccountRequest.SerializeToString,
@@ -42,20 +51,46 @@ class AccountsServiceStub(object):
                 request_serializer=grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.TransactionsRequest.SerializeToString,
                 response_deserializer=grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.TransactionsResponse.FromString,
                 _registered_method=True)
+        self.SubscribeAccount = channel.unary_stream(
+                '/grpc.tradeapi.v1.accounts.AccountsService/SubscribeAccount',
+                request_serializer=grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.GetAccountRequest.SerializeToString,
+                response_deserializer=grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.GetAccountResponse.FromString,
+                _registered_method=True)
 
 
 class AccountsServiceServicer(object):
+    """scope:ru,ny,cy,cy_mt5
+    {{accounts_service.service.accounts_service.comment}}
+    """
+
     def GetAccount(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{accounts_service.service.rpc.get_account.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def Trades(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{accounts_service.service.rpc.trades.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def Transactions(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{accounts_service.service.rpc.transactions.comment}}
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SubscribeAccount(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{accounts_service.service.rpc.subscribe_account.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -78,6 +113,11 @@ def add_AccountsServiceServicer_to_server(servicer, server):
                     request_deserializer=grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.TransactionsRequest.FromString,
                     response_serializer=grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.TransactionsResponse.SerializeToString,
             ),
+            'SubscribeAccount': grpc.unary_stream_rpc_method_handler(
+                    servicer.SubscribeAccount,
+                    request_deserializer=grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.GetAccountRequest.FromString,
+                    response_serializer=grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.GetAccountResponse.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'grpc.tradeapi.v1.accounts.AccountsService', rpc_method_handlers)
@@ -87,6 +127,10 @@ def add_AccountsServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class AccountsService(object):
+    """scope:ru,ny,cy,cy_mt5
+    {{accounts_service.service.accounts_service.comment}}
+    """
+
     @staticmethod
     def GetAccount(request,
             target,
@@ -158,6 +202,33 @@ class AccountsService(object):
             '/grpc.tradeapi.v1.accounts.AccountsService/Transactions',
             grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.TransactionsRequest.SerializeToString,
             grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.TransactionsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SubscribeAccount(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/grpc.tradeapi.v1.accounts.AccountsService/SubscribeAccount',
+            grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.GetAccountRequest.SerializeToString,
+            grpc_dot_tradeapi_dot_v1_dot_accounts_dot_accounts__service__pb2.GetAccountResponse.FromString,
             options,
             channel_credentials,
             insecure,

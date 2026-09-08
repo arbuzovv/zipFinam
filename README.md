@@ -120,11 +120,12 @@ asyncio.run(data_source.ingest(
 ### Загрузка каталога активов
 
 ```python
-from ziplime_grpc_data_source import GrpcAssetDataSource
+import asyncio
+from ziplime_grpc_data_source import FinamAssetDataSource
 
-asset_source = GrpcAssetDataSource(
-    grpc_token="ваш_токен",
-    grpc_server_url="api.finam.ru:443",
+asset_source = FinamAssetDataSource(
+    authorization_token="ваш_токен",
+    server_url="api.finam.ru:443",
 )
 
 asyncio.run(asset_source.ingest())

@@ -5,7 +5,7 @@ import warnings
 
 from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1.auth import auth_service_pb2 as grpc_dot_tradeapi_dot_v1_dot_auth_dot_auth__service__pb2
 
-GRPC_GENERATED_VERSION = '1.74.0'
+GRPC_GENERATED_VERSION = '1.78.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in grpc/tradeapi/v1/auth/auth_service_pb2_grpc.py depends on'
+        + ' but the generated code in grpc/tradeapi/v1/auth/auth_service_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -26,7 +26,16 @@ if _version_not_supported:
 
 
 class AuthServiceStub(object):
+    """scope:ru,ny,cy,cy_mt5
+    {{auth_service.service.auth_service.comment}}
+    """
+
     def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
         self.Auth = channel.unary_unary(
                 '/grpc.tradeapi.v1.auth.AuthService/Auth',
                 request_serializer=grpc_dot_tradeapi_dot_v1_dot_auth_dot_auth__service__pb2.AuthRequest.SerializeToString,
@@ -45,17 +54,30 @@ class AuthServiceStub(object):
 
 
 class AuthServiceServicer(object):
+    """scope:ru,ny,cy,cy_mt5
+    {{auth_service.service.auth_service.comment}}
+    """
+
     def Auth(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{auth_service.service.rpc.auth.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def TokenDetails(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{auth_service.service.rpc.token_details.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def SubscribeJwtRenewal(self, request, context):
+        """scope:ru,ny,cy,cy_mt5
+        {{auth_service.service.rpc.subscribe_jwt_renewal.comment}}
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -87,6 +109,10 @@ def add_AuthServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class AuthService(object):
+    """scope:ru,ny,cy,cy_mt5
+    {{auth_service.service.auth_service.comment}}
+    """
+
     @staticmethod
     def Auth(request,
             target,

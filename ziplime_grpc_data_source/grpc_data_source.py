@@ -20,6 +20,7 @@ from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1.auth import auth_servi
 from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1.marketdata import marketdata_service_pb2_grpc, \
     marketdata_service_pb2
 from google.type import interval_pb2
+from zoneinfo import ZoneInfo
 
 class GrpcDataSource(DataBundleSource):
     def __init__(self, authorization_token: str, server_url: str,
@@ -71,13 +72,13 @@ class GrpcDataSource(DataBundleSource):
 
         raise ValueError(f"Unsupported frequency for Yahoo Finance {frequency}")
 
-    async def fetch_historical_lime_trader_data(self,
-                                                channel: grpc.aio.Channel,
-                                                date_from: datetime.datetime,
-                                                date_to: datetime.datetime,
-                                                symbol: str,
-                                                frequency: datetime.timedelta,
-                                                ) -> tuple[pl.DataFrame, float, float]:
+    async def fetch_historical_data(self,
+                                    channel: grpc.aio.Channel,
+                                    date_from: datetime.datetime,
+                                    date_to: datetime.datetime,
+                                    symbol: str,
+                                    frequency: datetime.timedelta,
+                                    ) -> tuple[pl.DataFrame, float, float]:
         duration_start = time.time()
         token = await self.get_token()
 
@@ -105,18 +106,18 @@ class GrpcDataSource(DataBundleSource):
         duration = time.time() - request_start
         total_requests_time += duration
 
-        tz = date_from.tzinfo if date_from.tzinfo is not None else datetime.timezone.utc
-        tz_str = str(tz) if tz != datetime.timezone.utc else "UTC"
         rows = [
             {
-                "date": datetime.datetime.fromtimestamp(candle.timestamp.seconds, tz=tz),
+                # temporary fix, GRPC data source always returns data in NY timezone
+                "date": datetime.datetime.fromtimestamp(candle.timestamp.seconds,
+                                                        tz=ZoneInfo("America/New_York")).replace(
+                    tzinfo=date_from.tzinfo),
                 "open": float(candle.open.value),
                 "high": float(candle.high.value),
                 "low": float(candle.low.value),
                 "close": float(candle.close.value),
                 "volume": int(float(candle.volume.value)),
-                "exchange": mic,
-                "exchange_country": "US",
+                "mic": mic,
                 "price": float(candle.close.value),
                 "symbol": ticker,
             } for candle in response.bars
@@ -131,8 +132,8 @@ class GrpcDataSource(DataBundleSource):
                                             ("price", pl.Float64()),
                                             ("high", pl.Float64()), ("low", pl.Float64()),
                                             ("volume", pl.Float64()),
-                                            ("date", pl.Datetime(time_zone=tz_str)), ("exchange", pl.String),
-                                            ("exchange_country", pl.String), ("symbol", pl.String)
+                                            ("date", pl.Datetime(time_zone=date_from.tzinfo)), ("mic", pl.String),
+                                            ("symbol", pl.String)
                                             ])
             duration_total = time.time() - duration_start
 
@@ -159,11 +160,11 @@ class GrpcDataSource(DataBundleSource):
                 credentials = grpc.ssl_channel_credentials()
                 async with grpc.aio.secure_channel(self._server_url, credentials) as channel:
 
-                    result, duration, requests_time = await self.fetch_historical_lime_trader_data(channel=channel,
-                                                                                                   date_from=start_date,
-                                                                                                   date_to=end_date,
-                                                                                                   symbol=symbol,
-                                                                                                   frequency=frequency)
+                    result, duration, requests_time = await self.fetch_historical_data(channel=channel,
+                                                                                       date_from=start_date,
+                                                                                       date_to=end_date,
+                                                                                       symbol=symbol,
+                                                                                       frequency=frequency)
                     return result, duration, requests_time
             except Exception as e:
                 self._logger.exception(
@@ -174,17 +175,17 @@ class GrpcDataSource(DataBundleSource):
         total_days = (date_to - date_from).days
         final = pl.DataFrame()
 
-        with progressbar(length=len(symbols) * total_days, label="Downloading historical data from Lime Trader",
+        with progressbar(length=len(symbols) * total_days, label="Downloading historical data from GRPC",
                          file=sys.stdout) as pbar:
 
             if frequency >= datetime.timedelta(days=1):
-                maximum_batch = datetime.timedelta(days=180)
+                maximum_batch = datetime.timedelta(days=7200)
             elif frequency >= datetime.timedelta(hours=1):
-                maximum_batch = datetime.timedelta(days=90)
+                maximum_batch = datetime.timedelta(days=365)
             elif frequency >= datetime.timedelta(minutes=1):
-                maximum_batch = datetime.timedelta(days=30)
+                maximum_batch = datetime.timedelta(days=180)
             elif frequency >= datetime.timedelta(seconds=1):
-                maximum_batch = datetime.timedelta(days=7)
+                maximum_batch = datetime.timedelta(days=30)
 
             tasks = []
             batch_start_date = date_from
@@ -225,8 +226,7 @@ class GrpcDataSource(DataBundleSource):
     def from_env(cls) -> Self:
         token = os.environ.get("GRPC_TOKEN", None)
         server_url = os.environ.get("GRPC_SERVER_URL")
-        maximum_threads_raw = os.environ.get("GRPC_MAXIMUM_THREADS", None)
-        maximum_threads = int(maximum_threads_raw) if maximum_threads_raw is not None else None
+        maximum_threads = os.environ.get("GRPC_MAXIMUM_THREADS", None)
         if token is None:
             raise ValueError("Missing GRPC_TOKEN environment variable.")
         return cls(server_url=server_url, authorization_token=token, maximum_threads=maximum_threads)
