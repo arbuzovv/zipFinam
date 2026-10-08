@@ -12,7 +12,7 @@ from zipfinam.finam.grpc_asset_data_source import GrpcAssetDataSource
 from zipfinam.finam.grpc_data_source import GrpcDataSource
 from zipfinam.venue_calendars import FORTSExchangeCalendar, calendar_for_mic, clock_calendar_name
 
-__version__ = "1.0.0"
+__version__ = "1.26.10"
 
 #: Clearer names for the Finam sources; the Grpc* ones stay for code written against 0.x.
 FinamDataSource = GrpcDataSource

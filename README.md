@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="img/zipfinam-demo-dark.gif">
-    <source media="(prefers-color-scheme: light)" srcset="img/zipfinam-demo-light.gif">
-    <img src="img/zipfinam-demo-light.gif" width="100%" alt="zipFinam: бэктест и алготорговля на Мосбирже через Финам">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/arbuzovv/zipFinam/main/img/zipfinam-demo-dark.gif">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/arbuzovv/zipFinam/main/img/zipfinam-demo-light.gif">
+    <img src="https://raw.githubusercontent.com/arbuzovv/zipFinam/main/img/zipfinam-demo-light.gif" width="100%" alt="zipFinam: бэктест и алготорговля на Мосбирже через Финам">
   </picture>
 </p>
 

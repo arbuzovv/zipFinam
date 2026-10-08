@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "zipfinam"
-version = "1.0.0"
-description = "Российский рынок для ziplime: данные и исполнение через Финам, MOEX AlgoPack, календарь FORTS."
+version = "1.26.10"
+description = "Бэктест и алготорговля на Мосбирже через Финам. Надстройка над ziplime."
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
 license = "GPL-3.0-only"
