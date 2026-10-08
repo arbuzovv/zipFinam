@@ -2,15 +2,15 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="img/zipfinam-demo-dark.gif">
     <source media="(prefers-color-scheme: light)" srcset="img/zipfinam-demo-light.gif">
-    <img src="img/zipfinam-demo-light.gif" width="100%" alt="zipFinam: данные Финама, AlgoPack и исполнение заявок">
+    <img src="img/zipfinam-demo-light.gif" width="100%" alt="zipFinam: бэктест и алготорговля на Мосбирже через Финам">
   </picture>
 </p>
 
-<h1 align="center">zipFinam <br> Данные Мосбиржи, которых нет в свечах.</h1>
+<h1 align="center">zipFinam <br> Бэктест и алготорговля на Мосбирже через Финам.</h1>
 
 <p align="center">
-  <b>zipFinam — бэктестинг и алготорговля на Московской бирже на Python:<br>
-  котировки Финама, биржевая аналитика MOEX AlgoPack и исполнение заявок через Финам в одном пакете.</b><br><br>
+  <b>zipFinam — открытая Python-библиотека для бэктеста и алготорговли на Московской бирже:<br>
+  котировки Финама, торговые календари MOEX и исполнение заявок через Finam Trade API.</b><br><br>
   Стратегия, проверенная на истории, без переписывания запускается на вашем счёте в Финаме.
 </p>
 
@@ -31,8 +31,8 @@
 </p>
 
 <p align="center">
-  вся Мосбиржа из Финам Trade API · AlgoPack без заглядывания в будущее · заявки целыми лотами ·
-  капитал стратегии, а не весь счёт · движок ziplime
+  акции и фонды MOEX из Финам Trade API · календари MOEX и FORTS · заявки целыми лотами ·
+  капитал стратегии, а не весь счёт · данные MOEX AlgoPack по желанию · движок ziplime
 </p>
 
 ---
