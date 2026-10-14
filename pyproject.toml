@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "zipfinam"
-version = "1.26.10"
+version = "1.26.10.1"
 description = "Бэктест и алготорговля на Мосбирже через Финам. Надстройка над ziplime."
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
@@ -20,7 +20,7 @@ classifiers = [
     "Natural Language :: Russian",
 ]
 dependencies = [
-    "ziplime>=2.10.3,<3",
+    "ziplime>=2.11.0,<3",
     "grpcio>=1.76,<2",
     "googleapis-common-protos>=1.72,<2",
     "protobuf>=5",
@@ -42,6 +42,14 @@ dev = ["zipfinam[all]", "pytest>=8"]
 
 [project.entry-points."ziplime.data_providers"]
 finam = "zipfinam.provider"
+
+# ziplime 2.11 loads these without zipfinam being imported: the Moscow venues and their FORTS
+# calendar for per-venue trading hours, and the algopack:// address for data.history.
+[project.entry-points."ziplime.venue_calendars"]
+moscow = "zipfinam.venue_calendars:moscow_venues"
+
+[project.entry-points."ziplime.address_schemes"]
+algopack = "zipfinam.algopack:mount_address"
 
 [project.scripts]
 zipfinam-ai = "zipfinam.assistant.cli:main"
