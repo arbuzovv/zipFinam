@@ -2,9 +2,10 @@
 
 Two ways to read one from a strategy::
 
-    import zipfinam  # adds the algopack:// scheme to data.history
-
     df = await data.history(assets=[sber], bar_count=20, data_source="algopack://eq/tradestats")
+
+-- ziplime finds the ``algopack://`` scheme through the ``ziplime.address_schemes`` entry point, so
+nothing has to be imported for it --
 
 or, to choose the granularity, fields or window::
 
@@ -19,7 +20,8 @@ import datetime
 
 from zipfinam.algopack.algopack_data_source import AlgoPackDataSource, is_address
 
-__all__ = ["AlgoPackDataSource", "algopack_dataset", "install_address_scheme", "is_address"]
+__all__ = ["AlgoPackDataSource", "algopack_dataset", "install_address_scheme", "is_address",
+           "mount_address"]
 
 
 def algopack_dataset(context, dataset: str, market: str = "eq", granularity: str = "1d",
@@ -49,26 +51,26 @@ def algopack_dataset(context, dataset: str, market: str = "eq", granularity: str
         trading_calendar=clock.trading_calendar)
 
 
-def install_address_scheme() -> None:
-    """Teach ``data.history(data_source=...)`` the ``algopack://`` scheme.
+def mount_address(address: str, *, start_date: datetime.date, end_date: datetime.date,
+                  trading_calendar, **_) -> AlgoPackDataSource:
+    """Mount ``algopack://market/dataset[/granularity]`` for the running simulation.
 
-    ziplime resolves a data source it does not know by name in
-    ``TradingAlgorithm._resolve_named_data_source``, which understands only ``hf://``. This wraps
-    it: an AlgoPack address is mounted here, anything else goes to ziplime unchanged. Idempotent.
+    What ziplime calls for an ``algopack://`` address (see
+    :mod:`ziplime.data.data_sources.address_schemes`). No network and no asset lookup: AlgoPack is
+    read per instrument, so a mount knows nothing until a strategy says which instruments it is
+    asking about. Arguments ziplime passes that a mount does not need are accepted and ignored.
     """
-    from ziplime.trading.trading_algorithm import TradingAlgorithm
+    return AlgoPackDataSource.mount(address, start_date=start_date, end_date=end_date,
+                                    trading_calendar=trading_calendar)
 
-    original = TradingAlgorithm._resolve_named_data_source
-    if getattr(original, "_zipfinam", False):
-        return
 
-    async def _resolve_named_data_source(self, name: str):
-        if is_address(name):
-            return AlgoPackDataSource.mount(
-                name, start_date=self.clock.start_session, end_date=self.clock.end_session,
-                trading_calendar=self.clock.trading_calendar)
-        return await original(self, name)
+def install_address_scheme() -> None:
+    """Register the ``algopack://`` scheme with ziplime. Idempotent.
 
-    _resolve_named_data_source._zipfinam = True
-    _resolve_named_data_source.__doc__ = original.__doc__
-    TradingAlgorithm._resolve_named_data_source = _resolve_named_data_source
+    ziplime 2.11 also finds it through the ``ziplime.address_schemes`` entry point; registering on
+    import as well keeps a source checkout without installed metadata working. zipfinam 1.26.10
+    did this by wrapping ``TradingAlgorithm._resolve_named_data_source``; that patch is gone.
+    """
+    from ziplime.data.data_sources.address_schemes import register_address_scheme
+
+    register_address_scheme("algopack", mount_address)

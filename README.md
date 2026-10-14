@@ -82,8 +82,7 @@ python run_backtest.py      # бэктест на голубых фишках
 В zipFinam таблицы AlgoPack читаются той же строкой, что и цены:
 
 ```python
-import zipfinam
-
+# zipFinam достаточно установить: ziplime сам находит адреса algopack://
 flow = await data.history(assets=[sber], fields=["disb", "val"], bar_count=5,
                           data_source="algopack://eq/tradestats")
 ```
@@ -205,8 +204,10 @@ async def handle_data(context, data):
 ### Календарь срочного рынка
 
 Стандартный календарь XMOS заканчивается в 18:45, и фьючерсная стратегия теряет на нём вечернюю
-сессию. zipFinam добавляет календарь `FORTS` (09:00–23:50, клиринг 18:50–19:05), а для портфеля
-из бумаг нескольких бирж подбирает общий: `clock_calendar_name(["MISX", "XNYS"])` → `24/5`.
+сессию. zipFinam добавляет календарь `FORTS` (09:00–23:50, клиринг 18:50–19:05) и регистрирует в
+ziplime площадки Мосбиржи: акции `MISX` живут по XMOS, срочный рынок `RTSX` — по FORTS. Каждая
+бумага торгуется в часы своей площадки, а для портфеля из бумаг нескольких бирж ziplime подбирает
+общий календарь: `clock_calendar_name(["MISX", "XNYS"])` → `24/5`.
 
 ---
 
@@ -220,7 +221,7 @@ zipFinam — надстройка над [ziplime](https://github.com/Limex-com/
 zipfinam/
 ├── finam/               # Финам: бары, справочник, исполнение (REST и gRPC)
 ├── algopack/            # MOEX AlgoPack: каталог таблиц, клиент, источник данных
-└── venue_calendars.py   # FORTS и календари площадок
+└── venue_calendars.py   # календарь FORTS и площадки Мосбиржи для ziplime
 examples/                # загрузка, бэктест, живая торговля, стратегии
 ```
 
@@ -229,7 +230,7 @@ examples/                # загрузка, бэктест, живая торг
 <details>
 <summary>Переход с версии 0.x и ограничения</summary>
 
-- Нужен ziplime 2.x. Импорты: `from zipfinam import FinamDataSource, FinamAssetDataSource`;
+- Нужен ziplime 2.11 или новее. Импорты: `from zipfinam import FinamDataSource, FinamAssetDataSource`;
   старый модуль `ziplime_grpc_data_source` оставлен на время перехода.
 - Готовый `assets.sqlite` больше не поставляется: справочник загружается из Финама скриптом
   `examples/ingest_finam.py`.
@@ -238,8 +239,10 @@ examples/                # загрузка, бэктест, живая торг
 - Из справочника Финама импортируются акции и фонды; фьючерсы и опционы пропускаются.
 - Торговый день AlgoPack (07:00–23:50) длиннее основной сессии акций (10:00–18:45), поэтому
   `vol` и `pr_close` включают утро и вечер.
-- Адреса `algopack://` начинают работать после `import zipfinam`, сделать его нужно до запуска
-  симуляции.
+- С версии 1.26.10.1 zipFinam подключается к ziplime через точки расширения (entry points
+  `ziplime.venue_calendars` и `ziplime.address_schemes`): площадки Мосбиржи, календарь FORTS и адреса
+  `algopack://` работают, как только пакет установлен, `import zipfinam` для этого не нужен. Прежняя
+  подмена `TradingAlgorithm._resolve_named_data_source` убрана.
 
 </details>
 
