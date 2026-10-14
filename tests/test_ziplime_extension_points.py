@@ -125,5 +125,25 @@ class AddressSchemeTests(unittest.TestCase):
         self.assertIs(source.trading_calendar, calendar)
 
 
+class LightImportTests(unittest.TestCase):
+    """What ziplime loads through the entry points must not drag the Finam gRPC stubs in."""
+
+    def test_calendars_and_algopack_import_without_the_finam_sources(self):
+        import subprocess
+        import sys
+
+        code = ("import sys, zipfinam.venue_calendars, zipfinam.algopack; "
+                "print(any(m.startswith('zipfinam.finam') for m in sys.modules))")
+        result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
+                                check=True)
+        self.assertEqual(result.stdout.strip(), "False")
+
+    def test_the_finam_sources_are_still_reachable_by_their_old_names(self):
+        from zipfinam import FinamAssetDataSource, FinamDataSource, GrpcDataSource
+
+        self.assertIs(FinamDataSource, GrpcDataSource)
+        self.assertEqual(FinamAssetDataSource.__name__, "GrpcAssetDataSource")
+
+
 if __name__ == "__main__":
     unittest.main()
