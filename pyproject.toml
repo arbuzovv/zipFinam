@@ -35,7 +35,7 @@ description = "Источник рыночных данных на основе 
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
 dependencies = [
-    "ziplime (>=1.11.11,<2.0.0)",
+    "ziplime (>=2.11.0,<3.0.0)",
     "grpcio (==1.78.0)",
     "googleapis-common-protos (>=1.72.0,<2.0.0)",
     "rich (>=14.3.3,<15.0.0)",
