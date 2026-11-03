@@ -13,6 +13,7 @@ import structlog
 import polars as pl
 from aiocache import Cache
 from asyncclick import progressbar
+from iso4217 import Currency as ISO4217Currency
 from google.protobuf.timestamp_pb2 import Timestamp
 from ziplime.assets.entities.dividend_payout import DividendPayout
 from ziplime.assets.entities.split import Split
@@ -70,6 +71,23 @@ class GrpcAssetDataSource(AssetDataSource):
             response = await stub.Auth(auth_request)
         return response.token
 
+    def _parse_currency_pair(self, asset: assets_service_pb2.Asset) -> tuple[str, str] | None:
+        # Settlement/tenor suffixes belong to the listing, not to either currency.
+        # Some venues use opaque tickers, so fall back to the pair in the name.
+        for value in (asset.ticker, asset.symbol, asset.name):
+            parts = value.partition("@")[0].strip().upper().split("/")
+            if len(parts) != 2:
+                continue
+            base, quote = (part.partition("_")[0].strip() for part in parts)
+            try:
+                ISO4217Currency(base)
+                ISO4217Currency(quote)
+            except ValueError:
+                self._logger.warning("Invalid currency pair: %s/%s", base, quote)
+                continue
+            return base, quote
+        return None
+
     async def get_assets(self, exchanges: list[ExchangeInfo], **kwargs) -> AssetsImport:
         token = await self.get_token()
         metadata = [('authorization', token)]
@@ -100,7 +118,7 @@ class GrpcAssetDataSource(AssetDataSource):
             code: Currency(asset_name=code, id=None, start_date=asset_start_date,
                            end_date=asset_end_date, auto_close_date=asset_end_date,
                            first_traded=asset_start_date, isin=None)
-            for code in ("RUB", "USD")
+            for code in ("RUB",)
         }
         equities: dict[str, Equity] = {}
         exchange_assets = []
@@ -108,10 +126,34 @@ class GrpcAssetDataSource(AssetDataSource):
         for asset in assets_result:
             if asset.mic not in exchanges_by_code:
                 continue
+            if asset.type == "CURRENCIES":
+                pair = self._parse_currency_pair(asset)
+                if pair is None:
+                    continue
+                base, quote = pair
+                for code in pair:
+                    if code not in currencies:
+                        currencies[code] = Currency(
+                            asset_name=code, id=None, start_date=asset_start_date,
+                            end_date=asset_end_date, auto_close_date=asset_end_date,
+                            first_traded=asset_start_date, isin=None)
+                exchange_assets.append(ExchangeAsset(
+                    sid=None, symbol=asset.ticker, exchange=exchanges_by_code[asset.mic],
+                    start_date=asset_start_date,
+                    end_date=asset_end_date if not asset.is_archived else current_date,
+                    auto_close_date=asset_end_date, first_traded=asset_start_date,
+                    asset=currencies[base], quote=currencies[quote], external_id=asset.id))
+                continue
             if any(kind in (asset.type or "").upper() for kind in DERIVATIVE_TYPES):
                 # A futures or option listed as a share would trade at a multiplier of one.
                 skipped += 1
                 continue
+            quote_code = _quote_currency(asset.mic)
+            if quote_code not in currencies:
+                currencies[quote_code] = Currency(
+                    asset_name=quote_code, id=None, start_date=asset_start_date,
+                    end_date=asset_end_date, auto_close_date=asset_end_date,
+                    first_traded=asset_start_date, isin=None)
             if asset.ticker not in equities:
                 equities[asset.ticker] = Equity(
                     asset_name=asset.ticker,

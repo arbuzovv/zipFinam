@@ -28,6 +28,7 @@ dependencies = [
     "polars>=1.0",
     "structlog>=24",
     "exchange-calendars>=4.5",
+    "iso4217>=1.11",
 ]
 
 [project.optional-dependencies]

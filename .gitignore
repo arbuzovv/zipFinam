@@ -336,3 +336,4 @@ dual_moving_average.py
 .venv/
 *.env
 *.sqlite
+currency_reports/

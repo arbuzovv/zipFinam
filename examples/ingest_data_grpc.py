@@ -4,6 +4,7 @@ import logging
 
 import pytz
 
+from ziplime.assets.domain.asset_type import AssetType
 from ziplime.core.ingest_data import get_asset_service, ingest_market_data, ingest_custom_data
 
 from zipfinam.finam.grpc_data_source import GrpcDataSource
@@ -19,13 +20,29 @@ async def _ingest_data_grpc():
     # timezone = "America/New_York"
     # calendar = "NYSE"
 
-    symbols = ["SBER@MISX",]
+    symbols = ["SBER@MISX",
+               "USD/RUB_ON@_NPRO",
+               "USD/RUB_TN@_NPRO",
+               "USD/RUB_TOD@_NPRO",
+               "USD/RUB_TODSPOT@_NPRO",
+               "USD/RUB_SPOT@_NPRO",
+               "USD/RUB_1M@_NPRO",
+               "USD/RUB_1W@_NPRO",
+               "USD/RUB_1Y@_NPRO",
+               "USD/RUB_2M@_NPRO",
+               "USD/RUB_2W@_NPRO",
+               "USD/RUB_3M@_NPRO",
+               "USD/RUB_6M@_NPRO",
+               "USD/RUB_9M@_NPRO",
+               "USD/RUB_TOM2M@_NPRO",
+               "USDRUB"
+               ]
     timezone = "Europe/Moscow"
     calendar = "XMOS"
 
-    for y in range(2007,2026):
+    for y in range(2025, 2026):
         start_date = datetime.datetime(year=y, month=1, day=1, tzinfo=pytz.timezone(timezone))
-        end_date = datetime.datetime(year=y+1, month=1, day=1, tzinfo=pytz.timezone(timezone))
+        end_date = datetime.datetime(year=y + 1, month=1, day=1, tzinfo=pytz.timezone(timezone))
         market_data_bundle_source = GrpcDataSource.from_env()
 
         await market_data_bundle_source.get_token()
@@ -39,6 +56,7 @@ async def _ingest_data_grpc():
             data_bundle_source=market_data_bundle_source,
             data_frequency=datetime.timedelta(days=1),
             asset_service=asset_service,
+            asset_type=(AssetType.EQUITY, AssetType.CURRENCY),
             merge=True
         )
 
