@@ -1,7 +1,7 @@
 name: Публикация на PyPI
 
 # Новая версия уходит на PyPI, когда в репозиторий пушится тег vX.Y.Z[.n]:
-#   git tag v1.26.10.1 && git push origin v1.26.10.1
+#   git tag v1.26.11 && git push origin v1.26.11
 # Тег должен совпадать с версией в pyproject.toml и zipfinam/__init__.py.
 # Ручной запуск (Actions -> Публикация на PyPI -> Run workflow) только собирает и тестирует.
 on:

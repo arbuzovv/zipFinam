@@ -47,8 +47,9 @@ def listing(symbol: str, mic: str, sid: int = 1) -> ExchangeAsset:
                          exchange=exchange, asset=equity, quote=usd)
 
 
-def moscow(hour: int, minute: int = 0) -> datetime.datetime:
-    return pd.Timestamp(datetime.datetime(SESSION.year, SESSION.month, SESSION.day, hour, minute),
+def moscow(hour: int, minute: int = 0, day: str | None = None) -> datetime.datetime:
+    day = datetime.date.fromisoformat(day) if day else SESSION
+    return pd.Timestamp(datetime.datetime(day.year, day.month, day.day, hour, minute),
                         tz="Europe/Moscow").to_pydatetime()
 
 
@@ -79,6 +80,75 @@ class FORTSCalendarTests(unittest.TestCase):
         session = pd.Timestamp(SESSION)
         self.assertGreater(len(self.calendar.session_minutes(session)),
                            len(get_calendar("XMOS").session_minutes(session)))
+
+
+class FORTSHoursTests(unittest.TestCase):
+    """The derivatives market's hours as they changed, measured from Si, RI and BR minute bars.
+
+    A bar outside its calendar's session is dropped when a bundle is built, so a calendar narrower
+    than the market loses real trades rather than mis-timing them.
+    """
+
+    def setUp(self):
+        self.calendar = get_calendar("FORTS")
+
+    def hours(self, day: str) -> tuple[str, str]:
+        session = pd.Timestamp(day)
+        local = [self.calendar.session_open(session), self.calendar.session_close(session)]
+        return tuple(moment.tz_convert("Europe/Moscow").strftime("%H:%M") for moment in local)
+
+    def test_the_morning_session_opens_at_seven(self):
+        """Since 2026-07-14; XMOS would not see its first three hours."""
+        self.assertEqual(self.hours("2026-10-21"), ("07:00", "23:50"))
+        self.assertTrue(self.calendar.is_open_on_minute(moscow(7, 30, "2026-10-21")))
+
+    def test_the_opening_hour_moved_with_the_years(self):
+        self.assertEqual(self.hours("2010-03-10")[0], "10:30")
+        self.assertEqual(self.hours("2019-11-13")[0], "10:00")
+        self.assertEqual(self.hours("2021-06-16")[0], "07:00")
+        self.assertEqual(self.hours("2023-05-17")[0], "09:00")
+        self.assertEqual(self.hours("2024-09-11")[0], "10:00")
+        self.assertEqual(self.hours("2026-02-11")[0], "08:59", "the opening auction's minute")
+
+    def test_there_was_no_evening_session_in_the_spring_of_2022(self):
+        self.assertEqual(self.hours("2022-03-16"), ("10:00", "18:45"))
+        self.assertEqual(self.hours("2022-06-15"), ("10:00", "18:50"))
+        self.assertFalse(self.calendar.is_open_on_minute(moscow(21, 0, "2022-06-15")))
+
+    def test_the_evening_clearing_break_is_gone_since_2026_03_23(self):
+        self.assertFalse(self.calendar.is_open_on_minute(moscow(18, 55, "2026-03-18")))
+        self.assertTrue(self.calendar.is_open_on_minute(moscow(18, 55, "2026-04-15")))
+
+    def test_weekends_trade_since_august_2025(self):
+        self.assertFalse(self.calendar.is_session(pd.Timestamp("2025-08-09")))
+        self.assertTrue(self.calendar.is_session(pd.Timestamp("2025-08-16")))
+        self.assertEqual(self.hours("2025-08-16"), ("10:00", "18:50"))
+        self.assertEqual(self.hours("2026-10-17"), ("09:59", "19:00"))
+
+    def test_a_weekend_session_has_no_break(self):
+        self.assertTrue(self.calendar.is_open_on_minute(moscow(14, 2, "2026-10-17")))
+        self.assertFalse(self.calendar.is_break_minute(moscow(14, 2, "2026-10-17")))
+
+    def test_a_weekend_nothing_traded_is_not_a_session(self):
+        self.assertFalse(self.calendar.is_session(pd.Timestamp("2026-10-24")))
+        self.assertFalse(self.calendar.is_session(pd.Timestamp("2026-10-25")))
+
+    def test_the_week_mask_stays_a_weekday_one(self):
+        """Weekends come in through special week masks, so a mixed run still gets `24/5`."""
+        self.assertEqual(str(self.calendar.weekmask), "1111100")
+
+    def test_the_holidays_it_traded_through_are_sessions(self):
+        self.assertFalse(get_calendar("XMOS").is_session(pd.Timestamp("2026-02-23")))
+        self.assertEqual(self.hours("2026-02-23"), ("09:59", "19:00"))
+        self.assertEqual(self.hours("2026-05-11"), ("08:59", "23:50"))
+
+    def test_a_working_saturday_keeps_weekday_hours(self):
+        """2025-11-01 worked as a Monday, which XMOS does not know."""
+        self.assertFalse(get_calendar("XMOS").is_session(pd.Timestamp("2025-11-01")))
+        self.assertEqual(self.hours("2025-11-01"), ("08:59", "23:50"))
+
+    def test_an_early_close(self):
+        self.assertEqual(self.hours("2026-03-20"), ("08:59", "18:50"))
 
 
 class VenueLookupTests(unittest.TestCase):

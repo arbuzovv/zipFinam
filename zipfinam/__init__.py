@@ -13,7 +13,7 @@ same things explicitly.
 from zipfinam.algopack import AlgoPackDataSource, algopack_dataset, install_address_scheme
 from zipfinam.venue_calendars import FORTSExchangeCalendar, calendar_for_mic, clock_calendar_name
 
-__version__ = "1.26.10.1"
+__version__ = "1.26.11"
 
 #: The Finam sources, imported on first use. Their generated gRPC stubs check the installed grpcio
 #: at import time, and ziplime imports this package to read the venue calendars and the
