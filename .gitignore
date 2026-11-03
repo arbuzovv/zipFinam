@@ -331,3 +331,4 @@ envs/*.env
 static/
 .idea/
 dual_moving_average.py
+currency_reports/

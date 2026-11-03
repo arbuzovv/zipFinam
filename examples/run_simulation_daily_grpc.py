@@ -33,15 +33,20 @@ async def _run_simulation():
     # timezone = "America/New_York"
     # calendar = "NYSE"
 
-    symbols = ["SBER@MISX"]
+    symbols_equities = ["SBER@MISX"]
+    symbols_currencies = ["USDRUB@_NPRO"]
+
     benchmark_asset_symbol = "SBER@MISX"
     timezone = "Europe/Moscow"
     calendar = "XMOS"
 
-    exchange_assets = await asset_service.get_exchange_assets_by_symbols(symbols=[AssetSymbol(
+    exchange_assets_equities = await asset_service.get_exchange_assets_by_symbols(symbols=[AssetSymbol(
         symbol=symbol.split("@")[0], mic=symbol.split("@")[1]
-    ) for symbol in symbols], asset_type=AssetType.EQUITY)
+    ) for symbol in symbols_equities], asset_type=AssetType.EQUITY)
 
+    exchange_assets_currencies = await asset_service.get_exchange_assets_by_symbols(symbols=[AssetSymbol(
+        symbol=symbol.split("@")[0], mic=symbol.split("@")[1]
+    ) for symbol in symbols_currencies], asset_type=AssetType.CURRENCY)
 
     tz = pytz.timezone(timezone)
     start_local = datetime.datetime(2025, 9, 2, 0, 0)  # 2025-09-01 00:00 local clock time
@@ -62,7 +67,7 @@ async def _run_simulation():
                                                           frequency=datetime.timedelta(days=1),
                                                           start_date=start_date - datetime.timedelta(days=1),
                                                           end_date=end_date + datetime.timedelta(days=1),
-                                                          assets=exchange_assets,
+                                                          assets=exchange_assets_equities + exchange_assets_currencies,
                                                           aggregations=aggregations
                                                           )
 

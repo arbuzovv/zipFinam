@@ -131,6 +131,56 @@ asset_source = FinamAssetDataSource(
 asyncio.run(asset_source.ingest())
 ```
 
+### Отчёты в нескольких валютах
+
+Пример [examples/currencies/run_simulation_grpc.py](examples/currencies/run_simulation_grpc.py)
+запускает одну стратегию покупки SBER с начальным капиталом **100 000 RUB** и строит
+независимые отчёты в **RUB и USD** через `CurrencyReporting`. Покупка акций и комиссии
+остаются в RUB. Переоценка в USD учитывает изменение курса, поэтому доходности в двух
+валютах могут различаться. Бенчмарк SBER также пересчитывается в валюту отчёта.
+
+Нужна версия ziplime с новой поддержкой `CurrencyReporting` и
+`CurrencyConversionService`. Для работы с соседним checkout из корня zipFinam:
+
+```bash
+python -m pip install -e ../ziplime
+```
+
+Пример использует уже сохранённые каталог инструментов и дневные котировки SBER
+и выбранного USD/RUB-листинга. По умолчанию данные читаются из пакета
+`grpc_daily_data` в `~/.ziplime/data`, каталог инструментов — из
+`~/.ziplime/assets.sqlite`. Для запуска нужны готовые локальные данные:
+
+```bash
+python -m examples.currencies.run_simulation_grpc
+
+# Другой период и конкретный валютный инструмент из каталога Финам
+python -m examples.currencies.run_simulation_grpc \
+  --start 2025-09-02 --end 2025-09-17 --fx-symbol 'USDRUB@_NPRO'
+```
+
+Для FX выбирается точный листинг `ticker@MIC`: по умолчанию `USDRUB@_NPRO`.
+Он должен быть доступен в вашем каталоге и иметь котировки за нужный период.
+Направление конвертации определяется полями валют в каталоге, а не разбором тикера;
+обратный курс RUB → USD рассчитывается автоматически.
+
+Временные метки FX-данных должны отражать доступность курса и нормализоваться при
+загрузке данных. Пример использует сохранённый `date` без сдвига на следующий день:
+для добавленных справочных курсов ЦБ это дата действия курса. Для рыночного дневного
+close при загрузке нужно указать время, когда цена закрытия стала известна.
+`CurrencyConversionService.from_bundle()` читает запас истории для начальной оценки
+и проверяет котировки; пропущенные, некорректные и устаревшие значения вызывают ошибку.
+Максимальный возраст доступного курса — семь дней.
+
+Результат доступен в `result.perf_by_currency["RUB"]` и
+`result.perf_by_currency["USD"]`, а `result.perf` сохраняет базовый отчёт в RUB.
+Скрипт выводит последние строки и сохраняет ежедневные показатели в
+`currency_reports/performance_RUB.csv` и `currency_reports/performance_USD.csv`.
+`pnl` — изменение за день, `returns` — дневная доходность в долях единицы,
+`algorithm_period_return` и `benchmark_period_return` — накопленная доходность.
+Для другого пакета, каталога данных или отчётов используйте `--bundle`,
+`--ziplime-dir` и `--output-dir`.
+
 ---
 
 ## Возможности
@@ -169,6 +219,7 @@ asyncio.run(asset_source.ingest())
 - `ingest_assets_data_grpc.py` — загрузка каталога активов
 - `ingest_data_grpc.py` — загрузка исторических котировок (SBER, UGLD, UKUZ, WUSH)
 - `run_simulation_daily_grpc.py` — запуск дневной симуляции
+- `currencies/run_simulation_grpc.py` — одна симуляция с отчётами в RUB и USD
 - `algorithms/test_algo/test_algo.py` — пример алгоритма равновзвешенного портфеля
 
 ---

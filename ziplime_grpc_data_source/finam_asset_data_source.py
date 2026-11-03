@@ -17,6 +17,7 @@ from asyncclick import progressbar
 from finam_trade_api.assets.model import Asset
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.type import interval_pb2
+from iso4217 import Currency as ISO4217Currency
 from ziplime.assets.domain.assets_import import AssetsImport
 
 from ziplime.assets.entities.currency import Currency
@@ -57,6 +58,23 @@ class FinamAssetDataSource(AssetDataSource):
             auth_request.secret = self._authorization_token
             response = await stub.Auth(auth_request)
         return response.token
+
+    def _parse_currency_pair(self, asset: assets_service_pb2.Asset) -> tuple[str, str] | None:
+        # Settlement/tenor suffixes belong to the listing, not to either currency.
+        # Some venues use opaque tickers, so fall back to the pair in the name.
+        for value in (asset.ticker, asset.symbol, asset.name):
+            parts = value.partition("@")[0].strip().upper().split("/")
+            if len(parts) != 2:
+                continue
+            base, quote = (part.partition("_")[0].strip() for part in parts)
+            try:
+                ISO4217Currency(base)
+                ISO4217Currency(quote)
+            except ValueError:
+                self._logger.warning("Invalid currency pair: %s/%s", base, quote)
+                continue
+            return base, quote
+        return None
 
     async def get_assets(self, exchanges: list[ExchangeInfo], **kwargs) -> AssetsImport:
         token = await self.get_token()
@@ -110,10 +128,10 @@ class FinamAssetDataSource(AssetDataSource):
             if asset.type == "CURRENCIES":
                 print("CURRENCIES", asset.symbol, asset.name)
 
-                try:
-                    base, quote = asset.name.split("/")
-                except Exception as e:
+                pair = self._parse_currency_pair(asset)
+                if pair is None:
                     continue
+                base, quote = pair
                 if base not in currencies_symbol_set:
                     currencies.append(Currency(
                         asset_name=base,
@@ -184,10 +202,10 @@ class FinamAssetDataSource(AssetDataSource):
                     print("BONDS")
                     continue
                 elif asset.type == "CURRENCIES":
-                    try:
-                        base, quote = asset.name.split("/")
-                    except Exception as e:
+                    pair = self._parse_currency_pair(asset)
+                    if pair is None:
                         continue
+                    base, quote = pair
                     base_asset = currency_by_name[base]
                     quote_asset = currency_by_name[quote]
                     exchange_assets.append(

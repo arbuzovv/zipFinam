@@ -4390,44 +4390,42 @@ name = "ziplime"
 version = "2.11.0"
 description = ""
 optional = false
-python-versions = "<4.0,>=3.12"
+python-versions = "^3.12"
 groups = ["main"]
-files = [
-    {file = "ziplime-2.11.0-py3-none-any.whl", hash = "sha256:3c3d961344907cb55dd03234de1be3e6f6471ff5435cbf4c4bfe19bcdd7d33d2"},
-    {file = "ziplime-2.11.0.tar.gz", hash = "sha256:cf4f5a8c13c34d14c3e83f3ca2bf87a6bf603ffab8b358bfb64482fcd6daf0da"},
-]
+files = []
+develop = true
 
 [package.dependencies]
-aiocache = ">=0.12.3,<0.13.0"
-aiofiles = ">=24.1.0,<25.0.0"
-aiosqlite = ">=0.21.0,<0.22.0"
-alembic = ">=1.15.2,<2.0.0"
-asyncclick = ">=8.1.8,<9.0.0"
-deltalake = ">=1.6.1,<2.0.0"
-empyrical-reloaded = ">=0.5.11,<0.6.0"
-exchange-calendars = ">=4.10,<5.0"
-greenlet = ">=3.2.2,<4.0.0"
-h5py = ">=3.13.0,<4.0.0"
-httpx = {version = ">=0.28.1,<0.29.0", extras = ["http2"]}
-iso3166 = ">=2.1.1,<3.0.0"
-iso4217 = ">=1.12.20240625,<2.0.0"
-joblib = ">=1.5.1,<2.0.0"
-lime-trader-sdk = ">=0.4.1,<0.5.0"
-limexhub = ">=1.16.28,<2.0.0"
-networkx = ">=3.4.2,<4.0.0"
-numexpr = ">=2.10.2,<3.0.0"
-orjson = ">=3.10.15,<4.0.0"
-pandas = ">=2.0.0,<3.0.0"
-polars = ">=1.24.0,<2.0.0"
-pyarrow = ">=19.0.1,<20.0.0"
-pydantic = ">=2.11.2,<3.0.0"
-pygments = ">=2.18.0,<3.0.0"
-python-dateutil = ">=2.9.0.post0,<3.0.0"
-scipy = ">=1.15.3,<2.0.0"
-sqlalchemy = ">=2.0.40,<3.0.0"
-structlog = ">=25.4.0,<26.0.0"
-tabulate = ">=0.9.0,<0.10.0"
-yfinance = ">=0.2.65,<0.3.0"
+aiocache = "^0.12.3"
+aiofiles = "^24.1.0"
+aiosqlite = "^0.21.0"
+alembic = "^1.15.2"
+asyncclick = "^8.1.8"
+deltalake = "^1.6.1"
+empyrical-reloaded = "^0.5.11"
+exchange-calendars = "^4.10"
+greenlet = "^3.2.2"
+h5py = "^3.13.0"
+httpx = {version = "^0.28.1", extras = ["http2"]}
+iso3166 = "^2.1.1"
+iso4217 = "^1.12.20240625"
+joblib = "^1.5.1"
+lime-trader-sdk = "^0.4.1"
+limexhub = "^1.16.28"
+networkx = "^3.4.2"
+numexpr = "^2.10.2"
+orjson = "^3.10.15"
+pandas = "^2.0.0"
+polars = "^1.24.0"
+pyarrow = "^19.0.1"
+pydantic = "^2.11.2"
+pygments = "^2.18.0"
+python-dateutil = "^2.9.0.post0"
+scipy = "^1.15.3"
+sqlalchemy = "^2.0.40"
+structlog = "^25.4.0"
+tabulate = "^0.9.0"
+yfinance = "^0.2.65"
 
 [package.extras]
 all = ["huggingface-hub (>=1.0,<2.0)", "mcp (>=2.2.0,<3.0.0)", "numba (>=0.67,<0.68)", "pyyaml (>=6.0,<7.0)", "vollib (>=1.0.11,<2.0.0)"]
@@ -4436,7 +4434,11 @@ mcp = ["mcp (>=2.2.0,<3.0.0)"]
 numba = ["numba (>=0.67,<0.68)"]
 options = ["vollib (>=1.0.11,<2.0.0)"]
 
+[package.source]
+type = "directory"
+url = "../ziplime"
+
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "b6b570cb52fee2ebf740397bcfcdd89ad5745ea018d5550497a57791878a52d0"
+content-hash = "3105622a037195829ce78c3a1f176200c244dfc6ccec62b38680fb1a9caddeb4"
