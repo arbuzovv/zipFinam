@@ -38,6 +38,7 @@ import concurrent.futures
 import datetime
 import os
 import re
+import threading
 import time
 from contextlib import ExitStack, contextmanager
 from pathlib import Path
@@ -45,6 +46,7 @@ from pathlib import Path
 import polars as pl
 import structlog
 
+from zipfinam.algopack import archive
 from zipfinam.algopack.catalog import Dataset, path_for
 
 _logger = structlog.get_logger(__name__)
@@ -444,7 +446,7 @@ def _walk_open_interest(opened, path: str, secid: str, start: datetime.date,
 
 
 def fetch(dataset: Dataset, market: str, secid: str, start: datetime.date,
-          end: datetime.date, opened=None) -> pl.DataFrame:
+          end: datetime.date, opened=None, opener=None) -> pl.DataFrame:
     """Every row AlgoPack holds for one instrument between two dates.
 
     Served from the month cache where it can be, and from the API where it cannot. The frame is
@@ -458,6 +460,7 @@ def fetch(dataset: Dataset, market: str, secid: str, start: datetime.date,
         secid: The exchange's own code -- a ticker, or for ``futoi`` a two-letter futures root.
         start, end: Inclusive bounds, in Moscow calendar days.
         opened: A client to reuse. One is opened for the call when omitted.
+        opener: Called for a client the first time the exchange is needed (shared across threads).
 
     Returns:
         The rows, or an empty frame when the exchange holds none. An instrument AlgoPack does not
@@ -472,7 +475,7 @@ def fetch(dataset: Dataset, market: str, secid: str, start: datetime.date,
         def transport():
             nonlocal opened
             if opened is None:
-                opened = stack.enter_context(client())
+                opened = opener() if opener else stack.enter_context(client())
             return opened
 
         chunks = _read_months(dataset, market, secid, start, end, today, transport)
@@ -498,6 +501,15 @@ def _read_months(dataset: Dataset, market: str, secid: str, start: datetime.date
         cached = _read_chunk(path)
         if cached is not None:
             chunks.append(cached)
+            continue
+
+        # History the archive answers for is read from it, and kept in the local cache like a
+        # month fetched from the exchange (an empty answer is not worth a file).
+        archived = archive.chunk(market, dataset.name, secid, _UNSAFE_IN_PATH.sub("_", secid), month)
+        if archived is not None:
+            if archived.height:
+                _write_chunk(path, archived)
+            chunks.append(archived)
             continue
 
         # A finished month is fetched whole even when a shorter slice was asked for, because the
@@ -547,9 +559,19 @@ def fetch_many(dataset: Dataset, market: str, secids, start: datetime.date,
     began = time.monotonic()
     width = min(_concurrency(), len(secids))
     results: dict[str, pl.DataFrame] = {}
-    with client() as opened:
+    # The shared client is opened by the first instrument that needs the exchange, not up front:
+    # a read the cache and the archive answer in full needs neither a connection nor a key.
+    with ExitStack() as stack:
+        lock, shared = threading.Lock(), []
+
+        def opener():
+            with lock:
+                if not shared:
+                    shared.append(stack.enter_context(client()))
+                return shared[0]
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=width) as pool:
-            futures = {pool.submit(fetch, dataset, market, secid, start, end, opened): secid
+            futures = {pool.submit(fetch, dataset, market, secid, start, end, None, opener): secid
                        for secid in secids}
             for future in concurrent.futures.as_completed(futures):
                 results[futures[future]] = future.result()
