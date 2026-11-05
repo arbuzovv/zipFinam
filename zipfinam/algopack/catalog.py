@@ -306,7 +306,7 @@ DATASETS: dict[str, Dataset] = {
         description="order-book snapshots: spreads, depth, imbalance",
         daily=_obstats_daily()),
     "hi2": Dataset(
-        name="hi2", markets=("eq", "fo"),
+        name="hi2", markets=("eq", "fo", "fx"),
         description="market concentration (Herfindahl) indices, published once per session",
         # Published once a session already, at 18:40, so there is nothing to collapse. Eleven
         # metrics come back per instrument, confirmed against the exchange: hhi_volume, hhi_buy,

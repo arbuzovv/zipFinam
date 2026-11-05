@@ -114,6 +114,13 @@ flow = await data.history(assets=[sber], fields=["disb", "val"], bar_count=5,
 Загруженная история кэшируется на диске: инструмент-год `tradestats` занимает около 3 МБ, и
 повторный бэктест по тем же годам не скачивает их заново.
 
+Историю можно не качать из API вовсе. Годовые выгрузки AlgoPack раскладываются в ту же структуру,
+что и кэш (`<рынок>/<таблица>/<инструмент>/<ГГГГ-ММ>.parquet` и `manifest.json`), и
+кладутся в объектное хранилище или в папку. Адрес архива задаётся в `ALGOPACK_ARCHIVE_URL`
+(`https://…` или `file:///…`) или через `zipfinam.algopack.archive.set_archive(url, headers)`.
+Месяцы, которые покрывает архив, читаются из него, остальные по-прежнему из API. Строка
+`algopack://…` в стратегии от этого не меняется.
+
 ### Пять готовых стратегий
 
 В [`examples/algorithms/algopack/`](https://github.com/arbuzovv/zipFinam/tree/main/examples/algorithms/algopack) по стратегии на каждую таблицу:
