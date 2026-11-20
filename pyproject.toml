@@ -20,7 +20,7 @@ classifiers = [
     "Natural Language :: Russian",
 ]
 dependencies = [
-    "ziplime>=2.11.0,<3",
+    "ziplime>=2.12.0,<3",
     "grpcio>=1.78,<2",
     "googleapis-common-protos>=1.72,<2",
     "protobuf>=6.31.1,<7",

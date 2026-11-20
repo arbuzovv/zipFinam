@@ -21,14 +21,14 @@ def _market_data_source(assets=None, **kwargs) -> GrpcDataSource:
 
 FINAM = register_provider(DataProvider(
     name="finam",
-    description="Moscow Exchange equities, bonds and futures through the Finam Trade API "
+    description="Moscow Exchange equities, funds and currency pairs through the Finam Trade API "
                 "(GRPC_TOKEN from the Finam account)",
     asset_data_source_factory=_asset_data_source,
     market_data_source_factory=_market_data_source,
     required_env=("GRPC_TOKEN",),
     default_mic="MISX",
     default_calendar="XMOS",
-    asset_types=(AssetType.EQUITY.value,),
+    asset_types=(AssetType.EQUITY.value, AssetType.CURRENCY.value),
 ))
 
 install_address_scheme()
