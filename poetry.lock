@@ -3089,18 +3089,18 @@ files = [
 
 [[package]]
 name = "polars"
-version = "1.41.2"
+version = "1.44.2"
 description = "Blazingly fast DataFrame library"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "polars-1.41.2-py3-none-any.whl", hash = "sha256:23ce9a2910b6e3e8d4258770bf44aa17170958df7af6e85feedf4458a04d8d29"},
-    {file = "polars-1.41.2.tar.gz", hash = "sha256:256d6731162371b77f3f29a55eacb8c0fc740ddb1a293a01d2ef5b5393c5c708"},
+    {file = "polars-1.44.2-py3-none-any.whl", hash = "sha256:1bb331f17a40d9d931101533dcd33637b66edc61eb377b07020dac16a0f0377b"},
+    {file = "polars-1.44.2.tar.gz", hash = "sha256:86c8e26b6c2de8c8d344bb910b74dfc47b118ac3fe0f19b44909467990a0b281"},
 ]
 
 [package.dependencies]
-polars-runtime-32 = "1.41.2"
+polars-runtime-32 = "1.44.2"
 
 [package.extras]
 adbc = ["adbc-driver-manager[dbapi]", "adbc-driver-sqlite[dbapi]"]
@@ -3115,16 +3115,16 @@ excel = ["polars[calamine,openpyxl,xlsx2csv,xlsxwriter]"]
 fsspec = ["fsspec"]
 gpu = ["cudf-polars-cu12"]
 graph = ["matplotlib"]
-iceberg = ["pyiceberg (>=0.7.1)"]
+iceberg = ["pyiceberg (>=0.9.0)"]
 numpy = ["numpy (>=1.16.0)"]
 openpyxl = ["openpyxl (>=3.0.0)"]
 pandas = ["pandas", "polars[pyarrow]"]
 plot = ["altair (>=5.4.0)"]
-polars-cloud = ["polars_cloud (>=0.4.0)"]
+polars-cloud = ["polars_cloud (>=0.9.0)"]
 pyarrow = ["pyarrow (>=7.0.0)"]
 pydantic = ["pydantic"]
-rt64 = ["polars-runtime-64 (==1.41.2)"]
-rtcompat = ["polars-runtime-compat (==1.41.2)"]
+rt64 = ["polars-runtime-64 (==1.44.2)"]
+rtcompat = ["polars-runtime-compat (==1.44.2)"]
 sqlalchemy = ["polars[pandas]", "sqlalchemy"]
 style = ["great-tables (>=0.8.0)"]
 timezone = ["tzdata ; platform_system == \"Windows\""]
@@ -3133,21 +3133,21 @@ xlsxwriter = ["xlsxwriter"]
 
 [[package]]
 name = "polars-runtime-32"
-version = "1.41.2"
+version = "1.44.2"
 description = "Blazingly fast DataFrame library"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "polars_runtime_32-1.41.2-cp310-abi3-macosx_10_12_x86_64.whl", hash = "sha256:95a08346dac337357cdb825c8076df7d36da54c4caa59a5cb41d0a30691c5edd"},
-    {file = "polars_runtime_32-1.41.2-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:dedfaeec2c7f995298da7319dd9431d662e5dd1d0ec51b1459df4a0234ceff52"},
-    {file = "polars_runtime_32-1.41.2-cp310-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:18eea22c5cc34e27f8a60950458ad81e6a9ea75e89363ca1367e14e7e7f781fc"},
-    {file = "polars_runtime_32-1.41.2-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2630540dfdfb0f36f9b04a07c7c2e3f50bf2ad384113263c1c812007ee9141e0"},
-    {file = "polars_runtime_32-1.41.2-cp310-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:20e969e08f9b137e233c04cc04de73d9795f89eb77d34854e40a025965a43763"},
-    {file = "polars_runtime_32-1.41.2-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:e7016a3deb641b64a31447abbbee0f34bd020a6a9ae34ee6b743837def15e2a4"},
-    {file = "polars_runtime_32-1.41.2-cp310-abi3-win_amd64.whl", hash = "sha256:1e5e5377c315e0dcafdfb2a31adc546abbaeb3f9cb1864e6536523d2af473265"},
-    {file = "polars_runtime_32-1.41.2-cp310-abi3-win_arm64.whl", hash = "sha256:843d96f69d18eca53429c1198e58891db7f18111f83b9c419bb45ad9d73eaed5"},
-    {file = "polars_runtime_32-1.41.2.tar.gz", hash = "sha256:7af09ec1ab053da2c9669e8d15f809a4083a29be05db57111688b8051062af56"},
+    {file = "polars_runtime_32-1.44.2-cp310-abi3-macosx_10_12_x86_64.whl", hash = "sha256:1fd536720668ba203a16a20b08cd6b23057e407a0279cf36b2f35f879d6e3208"},
+    {file = "polars_runtime_32-1.44.2-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:e0fd43720c8222ae39919c8ff891636d53b352706087120e62f83544dd3ff782"},
+    {file = "polars_runtime_32-1.44.2-cp310-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bbf9b45040291dc1c6c588c837019c33557bde25ec536562a9cca9e1f6dfcc45"},
+    {file = "polars_runtime_32-1.44.2-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a1bafb441e99199a62c63bf1bbdc0ea09ee9776dbac2bf31452b5000fb1df2f7"},
+    {file = "polars_runtime_32-1.44.2-cp310-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:10c0c695a418407617b5159db7d9a21074a733e4c6d61275b6762f25cb31ca99"},
+    {file = "polars_runtime_32-1.44.2-cp310-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:c4a09fb14aad711526346efc0cb2015c2fd0555ce4118b6524e5debbaea65ff5"},
+    {file = "polars_runtime_32-1.44.2-cp310-abi3-win_amd64.whl", hash = "sha256:8598e7a20efba70bb74978c7df7af7c606ff4d79b9b48fdd808250b189bc9a13"},
+    {file = "polars_runtime_32-1.44.2-cp310-abi3-win_arm64.whl", hash = "sha256:d51040d3ab40157f6db3c62be59cab5b80fb3c8d158924769c4982a1c8eef730"},
+    {file = "polars_runtime_32-1.44.2.tar.gz", hash = "sha256:b84842f7d621aaca7a52e165e19a24f89db45f8aa13744941430218419a14a67"},
 ]
 
 [[package]]
@@ -4387,58 +4387,59 @@ repair = ["scipy (>=1.6.3)"]
 
 [[package]]
 name = "ziplime"
-version = "2.11.0"
+version = "2.12.0"
 description = ""
 optional = false
-python-versions = "^3.12"
+python-versions = "<4.0,>=3.12"
 groups = ["main"]
-files = []
-develop = true
+files = [
+    {file = "ziplime-2.12.0-py3-none-any.whl", hash = "sha256:7e809077040e74bb6dba63aee91c47c8137690935928e7dceb5f8b9ba3ab9ec9"},
+    {file = "ziplime-2.12.0.tar.gz", hash = "sha256:bf8ac2eca8112ecfc7964aba7a78e13885e9ff79f4f97bf2c534f77badbef041"},
+]
 
 [package.dependencies]
-aiocache = "^0.12.3"
-aiofiles = "^24.1.0"
-aiosqlite = "^0.21.0"
-alembic = "^1.15.2"
-asyncclick = "^8.1.8"
-deltalake = "^1.6.1"
-empyrical-reloaded = "^0.5.11"
-exchange-calendars = "^4.10"
-greenlet = "^3.2.2"
-h5py = "^3.13.0"
-httpx = {version = "^0.28.1", extras = ["http2"]}
-iso3166 = "^2.1.1"
-iso4217 = "^1.12.20240625"
-joblib = "^1.5.1"
-lime-trader-sdk = "^0.4.1"
-limexhub = "^1.16.28"
-networkx = "^3.4.2"
-numexpr = "^2.10.2"
-orjson = "^3.10.15"
-pandas = "^2.0.0"
-polars = "^1.24.0"
-pyarrow = "^19.0.1"
-pydantic = "^2.11.2"
-pygments = "^2.18.0"
-python-dateutil = "^2.9.0.post0"
-scipy = "^1.15.3"
-sqlalchemy = "^2.0.40"
-structlog = "^25.4.0"
-tabulate = "^0.9.0"
-yfinance = "^0.2.65"
+aiocache = ">=0.12.3,<0.13.0"
+aiofiles = ">=24.1.0,<25.0.0"
+aiosqlite = ">=0.21.0,<0.22.0"
+alembic = ">=1.15.2,<2.0.0"
+asyncclick = ">=8.1.8,<9.0.0"
+deltalake = ">=1.6.1,<2.0.0"
+empyrical-reloaded = ">=0.5.11,<0.6.0"
+exchange-calendars = ">=4.10,<5.0"
+greenlet = ">=3.2.2,<4.0.0"
+h5py = ">=3.13.0,<4.0.0"
+httpx = {version = ">=0.28.1,<0.29.0", extras = ["http2"]}
+iso3166 = ">=2.1.1,<3.0.0"
+iso4217 = ">=1.12.20240625,<2.0.0"
+joblib = ">=1.5.1,<2.0.0"
+lime-trader-sdk = ">=0.4.1,<0.5.0"
+limexhub = ">=1.16.28,<2.0.0"
+networkx = ">=3.4.2,<4.0.0"
+numexpr = ">=2.10.2,<3.0.0"
+orjson = ">=3.10.15,<4.0.0"
+pandas = ">=2.0.0,<3.0.0"
+polars = "1.44.2"
+pyarrow = ">=19.0.1,<20.0.0"
+pydantic = ">=2.11.2,<3.0.0"
+pygments = ">=2.18.0,<3.0.0"
+python-dateutil = ">=2.9.0.post0,<3.0.0"
+scipy = ">=1.15.3,<2.0.0"
+sqlalchemy = ">=2.0.40,<3.0.0"
+structlog = ">=25.4.0,<26.0.0"
+tabulate = ">=0.9.0,<0.10.0"
+yfinance = ">=0.2.65,<0.3.0"
 
 [package.extras]
 all = ["huggingface-hub (>=1.0,<2.0)", "mcp (>=2.2.0,<3.0.0)", "numba (>=0.67,<0.68)", "pyyaml (>=6.0,<7.0)", "vollib (>=1.0.11,<2.0.0)"]
+cuda = ["cupy-cuda12x (>=13)"]
 huggingface = ["huggingface-hub (>=1.0,<2.0)", "pyyaml (>=6.0,<7.0)"]
 mcp = ["mcp (>=2.2.0,<3.0.0)"]
+mlx = ["mlx (>=0.29) ; sys_platform == \"darwin\" and platform_machine == \"arm64\""]
 numba = ["numba (>=0.67,<0.68)"]
+opencl = ["pyopencl (>=2024.1)"]
 options = ["vollib (>=1.0.11,<2.0.0)"]
-
-[package.source]
-type = "directory"
-url = "../ziplime"
 
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "3105622a037195829ce78c3a1f176200c244dfc6ccec62b38680fb1a9caddeb4"
+content-hash = "1fca8f2f520e1791c68638319eb88fc7fa73c28c7e21a28ebf7d126c4847f1d6"
