@@ -1,0 +1,391 @@
+import asyncio
+import sys
+import time
+import datetime
+import multiprocessing
+import os
+from typing import Self
+
+import aiocache
+import grpc
+import structlog
+
+import polars as pl
+from aiocache import Cache
+from asyncclick import progressbar
+from iso4217 import Currency as ISO4217Currency
+from google.protobuf.timestamp_pb2 import Timestamp
+from ziplime.assets.entities.dividend_payout import DividendPayout
+from ziplime.assets.entities.split import Split
+from ziplime.assets.services.asset_service import AssetService
+from zipfinam.finam.grpc_stubs.grpc.tradeapi.v1.corporateactions import (
+    corporate_actions_service_pb2, corporate_actions_service_pb2_grpc,
+)
+
+from ziplime.assets.domain.assets_import import AssetsImport
+from ziplime.assets.entities.currency import Currency
+from ziplime.assets.entities.equity import Equity
+from ziplime.assets.entities.exchange_info import ExchangeInfo
+from ziplime.data.data_sources.asset_data_source import AssetDataSource
+from zipfinam.finam.grpc_stubs.grpc.tradeapi.v1.auth import auth_service_pb2_grpc, auth_service_pb2
+from zipfinam.finam.grpc_stubs.grpc.tradeapi.v1.assets import assets_service_pb2_grpc, \
+    assets_service_pb2
+from ziplime.assets.entities.exchange_asset import ExchangeAsset
+
+
+#: MICs of the Moscow Exchange markets Finam lists; everything else Finam carries is American.
+RUSSIAN_MICS = frozenset({"MISX", "RTSX", "XMOS", "MCXX"})
+
+
+#: Finam asset types left out of the import, matched as substrings of ``Asset.type``.
+DERIVATIVE_TYPES = ("FUTURE", "OPTION", "SWAP")
+
+
+def _country_code(mic: str) -> str:
+    return "RU" if mic in RUSSIAN_MICS else "US"
+
+
+def _quote_currency(mic: str) -> str:
+    return "RUB" if mic in RUSSIAN_MICS else "USD"
+
+
+class GrpcAssetDataSource(AssetDataSource):
+    def __init__(self, authorization_token: str, server_url: str,
+                 maximum_threads: int | None = None):
+        super().__init__()
+        self._logger = structlog.get_logger(__name__)
+        self._server_url = server_url
+        self._authorization_token = authorization_token
+        if maximum_threads is not None:
+            self._maximum_threads = min(multiprocessing.cpu_count() * 2, maximum_threads)
+        else:
+            self._maximum_threads = multiprocessing.cpu_count() * 2
+
+    @aiocache.cached(cache=Cache.MEMORY)
+    async def get_token(self) -> str:
+        credentials = grpc.ssl_channel_credentials()
+        async with grpc.aio.secure_channel(self._server_url, credentials) as channel:
+            stub = auth_service_pb2_grpc.AuthServiceStub(channel)
+            auth_request = auth_service_pb2.AuthRequest()
+            auth_request.secret = self._authorization_token
+            response = await stub.Auth(auth_request)
+        return response.token
+
+    def _parse_currency_pair(self, asset: assets_service_pb2.Asset) -> tuple[str, str] | None:
+        # Settlement/tenor suffixes belong to the listing, not to either currency.
+        # Some venues use opaque tickers, so fall back to the pair in the name.
+        for value in (asset.ticker, asset.symbol, asset.name):
+            parts = value.partition("@")[0].strip().upper().split("/")
+            if len(parts) != 2:
+                continue
+            base, quote = (part.partition("_")[0].strip() for part in parts)
+            try:
+                ISO4217Currency(base)
+                ISO4217Currency(quote)
+            except ValueError:
+                self._logger.warning("Invalid currency pair: %s/%s", base, quote)
+                continue
+            return base, quote
+        return None
+
+    async def get_assets(self, exchanges: list[ExchangeInfo], **kwargs) -> AssetsImport:
+        token = await self.get_token()
+        metadata = [('authorization', token)]
+        credentials = grpc.ssl_channel_credentials()
+
+        assets_result = []
+        async with grpc.aio.secure_channel(self._server_url, credentials) as channel:
+            stub = assets_service_pb2_grpc.AssetsServiceStub(channel)
+            cursor = 0
+
+            while True:
+                request = assets_service_pb2.AllAssetsRequest()
+                request.cursor = cursor
+                response_stream = await stub.AllAssets(request, metadata=metadata)
+                assets_result.extend(response_stream.assets)
+                self._logger.info(f"Got {len(response_stream.assets)} assets from GRPC asset data source.")
+                cursor = response_stream.next_cursor
+                if cursor == 0:
+                    break
+        self._logger.info(f"Got total of {len(assets_result)} assets from GRPC asset data source.")
+
+        asset_start_date = datetime.datetime(year=1900, month=1, day=1, tzinfo=datetime.timezone.utc)
+        asset_end_date = datetime.datetime(year=2099, month=1, day=1, tzinfo=datetime.timezone.utc)
+        current_date = datetime.datetime.now(tz=datetime.timezone.utc)
+        exchanges_by_code = {exchange.mic: exchange for exchange in exchanges}
+
+        currencies = {
+            code: Currency(asset_name=code, id=None, start_date=asset_start_date,
+                           end_date=asset_end_date, auto_close_date=asset_end_date,
+                           first_traded=asset_start_date, isin=None)
+            for code in ("RUB",)
+        }
+        equities: dict[str, Equity] = {}
+        exchange_assets = []
+        skipped = 0
+        for asset in assets_result:
+            if asset.mic not in exchanges_by_code:
+                continue
+            if asset.type == "CURRENCIES":
+                pair = self._parse_currency_pair(asset)
+                if pair is None:
+                    continue
+                base, quote = pair
+                for code in pair:
+                    if code not in currencies:
+                        currencies[code] = Currency(
+                            asset_name=code, id=None, start_date=asset_start_date,
+                            end_date=asset_end_date, auto_close_date=asset_end_date,
+                            first_traded=asset_start_date, isin=None)
+                exchange_assets.append(ExchangeAsset(
+                    sid=None, symbol=asset.ticker, exchange=exchanges_by_code[asset.mic],
+                    start_date=asset_start_date,
+                    end_date=asset_end_date if not asset.is_archived else current_date,
+                    auto_close_date=asset_end_date, first_traded=asset_start_date,
+                    asset=currencies[base], quote=currencies[quote], external_id=asset.id))
+                continue
+            if any(kind in (asset.type or "").upper() for kind in DERIVATIVE_TYPES):
+                # A futures or option listed as a share would trade at a multiplier of one.
+                skipped += 1
+                continue
+            quote_code = _quote_currency(asset.mic)
+            if quote_code not in currencies:
+                currencies[quote_code] = Currency(
+                    asset_name=quote_code, id=None, start_date=asset_start_date,
+                    end_date=asset_end_date, auto_close_date=asset_end_date,
+                    first_traded=asset_start_date, isin=None)
+            if asset.ticker not in equities:
+                equities[asset.ticker] = Equity(
+                    asset_name=asset.ticker,
+                    id=None,
+                    start_date=asset_start_date,
+                    end_date=asset_end_date if not asset.is_archived else current_date,
+                    auto_close_date=asset_end_date,
+                    first_traded=asset_start_date,
+                    isin=asset.isin
+                )
+            equity = equities[asset.ticker]
+            exchange_assets.append(
+                ExchangeAsset(
+                    sid=None,
+                    symbol=asset.ticker,
+                    exchange=exchanges_by_code[asset.mic],
+                    start_date=equity.start_date,
+                    end_date=equity.end_date,
+                    auto_close_date=equity.end_date,
+                    first_traded=equity.start_date,
+                    asset=equity,
+                    quote=currencies[_quote_currency(asset.mic)],
+                    external_id=asset.id
+                )
+            )
+        if skipped:
+            self._logger.info(f"Skipped {skipped} derivatives: zipfinam imports shares and funds.")
+        return AssetsImport(exchange_assets=exchange_assets, currencies=list(currencies.values()),
+                            equities=list(equities.values()))
+
+    async def get_exchanges(self, **kwargs) -> list[ExchangeInfo]:
+        request = assets_service_pb2.ExchangesRequest()
+        token = await self.get_token()
+        metadata = [('authorization', token)]
+        credentials = grpc.ssl_channel_credentials()
+
+        async with grpc.aio.secure_channel(self._server_url, credentials) as channel:
+            stub = assets_service_pb2_grpc.AssetsServiceStub(channel)
+            response_stream = await stub.Exchanges(request, metadata=metadata)
+            exchanges = [
+                ExchangeInfo(name=exchange.name, mic=exchange.mic, canonical_name=exchange.name,
+                             country_code=_country_code(exchange.mic))
+                for exchange in response_stream.exchanges]
+            self._logger.info(f"Got {len(exchanges)} exchanges from GRPC asset data source.")
+        return exchanges
+
+    async def _fetch_dividends_data(self,
+                                    channel: grpc.aio.Channel,
+                                    asset_service: AssetService,
+                                    date_from: datetime.datetime,
+                                    date_to: datetime.datetime,
+                                    asset: ExchangeAsset,
+                                    ) -> list[DividendPayout]:
+        token = await self.get_token()
+        stub = corporate_actions_service_pb2_grpc.CorporateActionsServiceStub(channel)
+        metadata = [('authorization', token)]
+        timestamp_from = Timestamp()
+        timestamp_to = Timestamp()
+        timestamp_from.FromDatetime(date_from)
+        timestamp_to.FromDatetime(date_to)
+        dividends = []
+        dividends_request = corporate_actions_service_pb2.GetPastDividendsRequest(limit=1000)
+        dividends_request.symbol = f"{asset.symbol}@{asset.mic}"
+        self._logger.info(f"Fetching dividends for symbol {asset.symbol} - {date_from} to {date_to}",
+                          symbol=asset.symbol, start_date=date_from, end_date=date_to)
+        total_requests_time = 0
+        request_start = time.time()
+        response = await stub.GetPastDividends(dividends_request, metadata=metadata)
+        duration = time.time() - request_start
+        total_requests_time += duration
+        for dividend in response.dividends:
+            dividend_date = datetime.date(year=dividend.date.year, month=dividend.date.month,
+                                          day=dividend.date.day
+                                          )
+            d = DividendPayout(
+                asset=asset.asset,
+                amount=float(dividend.amount.value),
+                pay_date=dividend_date,
+                ex_date=dividend_date,
+                declared_date=dividend_date,
+                record_date=dividend_date,
+                currency=await asset_service.get_currency_by_symbol(symbol=dividend.currency)
+            )
+            dividends.append(d)
+
+        self._logger.info(
+            f"Fetched dividends data for symbol {asset.symbol} - {date_from} to {date_to} in {duration:.2f}",
+            symbol=asset.symbol, start_date=date_from, end_date=date_to, duration=duration)
+
+        return dividends
+
+    async def _fetch_splits_data(self,
+                                 channel: grpc.aio.Channel,
+                                 asset_service: AssetService,
+                                 date_from: datetime.datetime,
+                                 date_to: datetime.datetime,
+                                 asset: ExchangeAsset,
+                                 ) -> list[Split]:
+        token = await self.get_token()
+        stub = corporate_actions_service_pb2_grpc.CorporateActionsServiceStub(channel)
+        metadata = [('authorization', token)]
+        timestamp_from = Timestamp()
+        timestamp_to = Timestamp()
+        timestamp_from.FromDatetime(date_from)
+        timestamp_to.FromDatetime(date_to)
+        splits = []
+        splits_request = corporate_actions_service_pb2.GetPastSplitsRequest(limit=1000)
+        splits_request.symbol = f"{asset.symbol}@{asset.mic}"
+        self._logger.info(f"Fetching splits for symbol {asset.symbol} - {date_from} to {date_to}",
+                          symbol=asset.symbol, start_date=date_from, end_date=date_to)
+        total_requests_time = 0
+        request_start = time.time()
+        response = await stub.GetPastSplits(splits_request, metadata=metadata)
+        duration = time.time() - request_start
+        total_requests_time += duration
+        for split in response.splits:
+            s = Split(
+                asset=asset.asset,
+                ratio=float(split.old_ratio.value) / float(split.new_ratio.value),
+                effective_date=datetime.date(year=split.exec_date.year, month=split.exec_date.month,
+                                             day=split.exec_date.day
+                                             ),
+            )
+            splits.append(s)
+
+        self._logger.info(
+            f"Fetched dividends data for symbol {asset.symbol} - {date_from} to {date_to} in {duration:.2f}",
+            symbol=asset.symbol, start_date=date_from, end_date=date_to, duration=duration)
+
+        return splits
+
+    async def get_dividends(self, assets: list[ExchangeAsset],
+                            asset_service: AssetService,
+                            date_from: datetime.datetime,
+                            date_to: datetime.datetime,
+                            ) -> list[DividendPayout]:
+        async def fetch_historical(asset: ExchangeAsset, asset_service: AssetService,
+                                   start_date: datetime.datetime,
+                                   end_date: datetime.datetime) -> list[DividendPayout]:
+            try:
+                credentials = grpc.ssl_channel_credentials()
+                async with grpc.aio.secure_channel(self._server_url, credentials) as channel:
+
+                    result = await self._fetch_dividends_data(channel=channel,
+                                                              asset_service=asset_service,
+                                                              date_from=start_date,
+                                                              date_to=end_date,
+                                                              asset=asset)
+                    return result
+            except Exception as e:
+                self._logger.exception(
+                    f"Exception fetching dividends data for symbol {asset.symbol}, date_from={start_date}, date_to={end_date}. Skipping."
+                )
+                return []
+
+        total_days = (date_to - date_from).days
+        dividend_payouts = []
+        with progressbar(length=len(assets) * total_days, label="Downloading dividends data from GRPC",
+                         file=sys.stdout) as pbar:
+            tasks = [fetch_historical(
+                asset=asset, asset_service=asset_service, start_date=date_from, end_date=date_to
+            ) for asset in assets]
+            total_duration = 0
+            total_requests_duration = 0
+            res = await asyncio.gather(*tasks)
+
+            for item in res:
+                pbar.update(total_days)
+                dividend_payouts.extend(item)
+            self._logger.info(
+                f"Retrieved {len(dividend_payouts)} dividends for {assets} in {total_duration:.2f}s. "
+                f"Total requests time: {total_requests_duration:.2f}s",
+                total_duration=total_duration, requests_duration=total_requests_duration
+            )
+
+        return dividend_payouts
+
+    async def get_splits(self, assets: list[ExchangeAsset],
+                         asset_service: AssetService,
+                         date_from: datetime.datetime,
+                         date_to: datetime.datetime,
+                         ) -> list[DividendPayout]:
+        async def fetch_historical(asset: ExchangeAsset, asset_service: AssetService,
+                                   start_date: datetime.datetime,
+                                   end_date: datetime.datetime) -> list[DividendPayout]:
+            try:
+                credentials = grpc.ssl_channel_credentials()
+                async with grpc.aio.secure_channel(self._server_url, credentials) as channel:
+
+                    result = await self._fetch_splits_data(channel=channel,
+                                                           asset_service=asset_service,
+                                                           date_from=start_date,
+                                                           date_to=end_date,
+                                                           asset=asset)
+                    return result
+            except Exception as e:
+                self._logger.exception(
+                    f"Exception fetching splits data for symbol {asset.symbol}, date_from={start_date}, date_to={end_date}. Skipping."
+                )
+                return []
+
+        total_days = (date_to - date_from).days
+        splits = []
+        with progressbar(length=len(assets) * total_days, label="Downloading splits data from GRPC",
+                         file=sys.stdout) as pbar:
+            tasks = [fetch_historical(
+                asset=asset, asset_service=asset_service, start_date=date_from, end_date=date_to
+            ) for asset in assets]
+            total_duration = 0
+            total_requests_duration = 0
+            res = await asyncio.gather(*tasks)
+
+            for item in res:
+                pbar.update(total_days)
+                splits.extend(item)
+            self._logger.info(
+                f"Retrieved {len(splits)} dividends for {assets} in {total_duration:.2f}s. "
+                f"Total requests time: {total_requests_duration:.2f}s",
+                total_duration=total_duration, requests_duration=total_requests_duration
+            )
+
+        return splits
+
+    async def get_constituents(self, index: str) -> pl.DataFrame:
+        raise NotImplementedError("Finam Trade API does not publish index constituents")
+
+    @classmethod
+    def from_env(cls) -> Self:
+        token = os.environ.get("GRPC_TOKEN", None)
+        server_url = os.environ.get("GRPC_SERVER_URL", "api.finam.ru:443")
+        maximum_threads_raw = os.environ.get("GRPC_MAXIMUM_THREADS", None)
+        maximum_threads = int(maximum_threads_raw) if maximum_threads_raw is not None else None
+        if token is None:
+            raise ValueError("Missing GRPC_TOKEN environment variable.")
+        return cls(server_url=server_url, authorization_token=token, maximum_threads=maximum_threads)

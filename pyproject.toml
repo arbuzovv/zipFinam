@@ -1,50 +1,69 @@
-[tool.poetry]
-name = "ziplime-grpc-data-source"
-version = "0.1.1"
-description = "Источник рыночных данных на основе gRPC для фреймворка Ziplime — подключение к API брокера Финам для торговли на российском рынке."
-authors = ["nlosic@lime.co"]
-readme = "README.md"
-packages = [{include = "ziplime_grpc_data_source"}]
-include = [
-    {path = "ziplime_grpc_data_source/assets.sqlite", format = ["sdist", "wheel"]},
-]
-keywords = ["ziplime", "backtesting", "finam", "grpc", "trading", "russia", "quantitative"]
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent",
-    "Topic :: Office/Business :: Financial",
-    "Topic :: Office/Business :: Financial :: Investment",
-]
-
-[tool.poetry.dependencies]
-python = ">=3.12,<4.0"
-#ziplime = {path = "../ziplime", develop = true}
-grpcio = ">=1.76.0,<2.0.0"
-googleapis-common-protos = ">=1.72.0,<2.0.0"
-
-[tool.poetry.group.ai.dependencies]
-openai = ">=1.0.0"
-rich = ">=13.0.0"
-yfinance = ">=0.2.0"
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
 
 [project]
-name = "ziplime-grpc-data-source"
-version = "0.1.1"
-description = "Источник рыночных данных на основе gRPC для фреймворка Ziplime — подключение к API брокера Финам."
+name = "zipfinam"
+version = "1.26.10.1"
+description = "Бэктест и алготорговля на Мосбирже через Финам. Надстройка над ziplime."
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
+authors = [{ name = "Limex" }]
+keywords = ["ziplime", "backtesting", "finam", "moex", "algopack", "trading", "russia"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Natural Language :: Russian",
+]
 dependencies = [
-    "ziplime (>=2.12.0,<3.0.0)",
-    "grpcio (==1.78.0)",
-    "googleapis-common-protos (>=1.72.0,<2.0.0)",
-    "rich (>=14.3.3,<15.0.0)",
-    "quantstats (>=0.0.81,<0.0.82)",
-    "finam-trade-api (>=4.3.3,<5.0.0)",
-    "aiohttp (>=3.14.3,<4.0.0)",
-    "grpcio-tools (==1.78.0)"
+    "ziplime>=2.12.0,<3",
+    "grpcio>=1.78,<2",
+    "googleapis-common-protos>=1.72,<2",
+    "protobuf>=6.31.1,<7",
+    "aiocache>=0.12",
+    "polars>=1.0",
+    "structlog>=24",
+    "exchange-calendars>=4.5",
+    "iso4217>=1.11",
 ]
 
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+[project.optional-dependencies]
+# MOEX AlgoPack: ключ ALGOPACK_API с подпиской https://data.moex.com
+algopack = ["moexalgo==2.5.12"]
+# Живая торговля через Финам (Arena или реальный счёт)
+live = ["finam-trade-api>=4.4,<5", "aiohttp>=3.9", "httpx>=0.27"]
+# ИИ-ассистент: OpenRouter, отчёты QuantStats
+ai = ["openai>=1.30", "rich>=13", "quantstats>=0.0.62", "python-dotenv>=1.0", "numpy>=1.24"]
+all = ["zipfinam[algopack,live,ai]"]
+dev = ["zipfinam[all]", "pytest>=8"]
+
+[project.entry-points."ziplime.data_providers"]
+finam = "zipfinam.provider"
+
+# ziplime 2.11 loads these without zipfinam being imported: the Moscow venues and their FORTS
+# calendar for per-venue trading hours, and the algopack:// address for data.history.
+[project.entry-points."ziplime.venue_calendars"]
+moscow = "zipfinam.venue_calendars:moscow_venues"
+
+[project.entry-points."ziplime.address_schemes"]
+algopack = "zipfinam.algopack:mount_address"
+
+[project.scripts]
+zipfinam-ai = "zipfinam.assistant.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/arbuzovv/zipFinam"
+Ziplime = "https://github.com/Limex-com/ziplime"
+
+[tool.hatch.build.targets.wheel]
+packages = ["zipfinam", "ziplime_grpc_data_source"]
+
+[tool.hatch.build.targets.sdist]
+include = ["zipfinam", "ziplime_grpc_data_source", "tests", "examples", "README.md", "LICENSE"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

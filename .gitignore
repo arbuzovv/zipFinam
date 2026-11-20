@@ -331,4 +331,9 @@ envs/*.env
 static/
 .idea/
 dual_moving_average.py
+
+*.pyc
+.venv/
+*.env
+*.sqlite
 currency_reports/

@@ -24,7 +24,7 @@ class AlgorithmConfig(BaseAlgorithmConfig):
 
 
 async def initialize(context):
-    context.assets = [
+    context.stocks = [
         await context.symbol("SBER@MISX"),
         # await context.symbol("SBER@RUSX"),
         # await context.symbol("UGLD@MISX"),
@@ -35,10 +35,10 @@ async def initialize(context):
 
 
 async def handle_data(context, data):
-    num_assets = len(context.assets)
+    num_assets = len(context.stocks)
     target_percent = 1.0 / num_assets
-    # await context.order_target_percent(asset=context.assets[0], exchange_name="grpc_exchange",
+    # await context.order_target_percent(asset=context.stocks[0], exchange_name="grpc_exchange",
     #                                    style=MarketOrder(), target=0.5)
-    for asset in context.assets:
+    for asset in context.stocks:
         await context.order_target_percent(asset=asset,
                                            target=target_percent, style=MarketOrder())

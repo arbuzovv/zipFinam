@@ -4,9 +4,10 @@ import logging
 
 import pytz
 
+from ziplime.assets.domain.asset_type import AssetType
 from ziplime.core.ingest_data import get_asset_service, ingest_market_data, ingest_custom_data
 
-from ziplime_grpc_data_source.grpc_data_source import GrpcDataSource
+from zipfinam.finam.grpc_data_source import GrpcDataSource
 from ziplime.utils.logging_utils import configure_logging
 
 
@@ -55,6 +56,7 @@ async def _ingest_data_grpc():
             data_bundle_source=market_data_bundle_source,
             data_frequency=datetime.timedelta(days=1),
             asset_service=asset_service,
+            asset_type=(AssetType.EQUITY, AssetType.CURRENCY),
             merge=True
         )
 

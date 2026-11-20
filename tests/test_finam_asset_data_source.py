@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, Mock, patch
 from ziplime.assets.entities.currency import Currency
 from ziplime.assets.entities.equity import Equity
 from ziplime.assets.entities.exchange_info import ExchangeInfo
-from ziplime_grpc_data_source.finam_asset_data_source import FinamAssetDataSource
-from ziplime_grpc_data_source.grpc_stubs.grpc.tradeapi.v1.assets import assets_service_pb2
+from zipfinam.finam.grpc_asset_data_source import GrpcAssetDataSource as FinamAssetDataSource
+from zipfinam.finam.grpc_stubs.grpc.tradeapi.v1.assets import assets_service_pb2
 
 
 class FinamAssetDataSourceTests(unittest.IsolatedAsyncioTestCase):
@@ -23,8 +23,8 @@ class FinamAssetDataSourceTests(unittest.IsolatedAsyncioTestCase):
             for mic in ("MISX", "_NPRO")
         ]
         with (
-            patch("ziplime_grpc_data_source.finam_asset_data_source.grpc.aio.secure_channel"),
-            patch("ziplime_grpc_data_source.finam_asset_data_source.assets_service_pb2_grpc.AssetsServiceStub") as stub_class,
+            patch("zipfinam.finam.grpc_asset_data_source.grpc.aio.secure_channel"),
+            patch("zipfinam.finam.grpc_asset_data_source.assets_service_pb2_grpc.AssetsServiceStub") as stub_class,
             contextlib.redirect_stdout(io.StringIO()),
         ):
             stub = stub_class.return_value

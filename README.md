@@ -1,135 +1,213 @@
-<img src="ai_assistant/img/zipFinam_black.png" alt="Ziplime">
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/arbuzovv/zipFinam/main/img/zipfinam-demo-dark.gif">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/arbuzovv/zipFinam/main/img/zipfinam-demo-light.gif">
+    <img src="https://raw.githubusercontent.com/arbuzovv/zipFinam/main/img/zipfinam-demo-light.gif" width="100%" alt="zipFinam: бэктест и алготорговля на Мосбирже через Финам">
+  </picture>
+</p>
 
-адаптер [Ziplime](https://github.com/Limex-com/ziplime) для Финам Trade API. Бэктестинг на MOEX без боли.
+<h1 align="center">zipFinam <br> Бэктест и алготорговля на Мосбирже через Финам.</h1>
 
-> Потому что `yfinance` тут не поможет.
+<p align="center">
+  <b>zipFinam — открытая Python-библиотека для бэктеста и алготорговли на Московской бирже:<br>
+  котировки Финама, торговые календари MOEX и исполнение заявок через Finam Trade API.</b><br><br>
+  Стратегия, проверенная на истории, без переписывания запускается на вашем счёте в Финаме.
+</p>
+
+<p align="center">
+  <a href="https://pypi.org/project/zipfinam/"><img src="https://img.shields.io/pypi/v/zipfinam" alt="PyPI"></a>
+  <a href="https://pypi.org/project/zipfinam/"><img src="https://img.shields.io/pypi/pyversions/zipfinam" alt="Python"></a>
+  <a href="#license"><img src="https://img.shields.io/github/license/arbuzovv/zipFinam" alt="License"></a>
+  <a href="https://github.com/arbuzovv/zipFinam"><img src="https://img.shields.io/github/stars/arbuzovv/zipFinam.svg?style=social&label=Star" alt="Stars"></a>
+</p>
+
+<p align="center">
+  <a href="#why">Зачем это нужно</a> ·
+  <a href="#finam-data">Котировки Финама</a> ·
+  <a href="#algopack">MOEX AlgoPack</a> ·
+  <a href="#live">Торговля на своём счёте</a> ·
+  <a href="#quick-start">Начало работы</a> ·
+  <a href="#license">Лицензия</a>
+</p>
+
+<p align="center">
+  акции и фонды MOEX из Финам Trade API · календари MOEX и FORTS · заявки целыми лотами ·
+  капитал стратегии, а не весь счёт · данные MOEX AlgoPack по желанию · движок ziplime
+</p>
 
 ---
 
-## Что это
+<a id="why"></a>
+## Зачем это нужно
 
-**ZipFinam** — инструмент для тестирования торговых стратегий на российском рынке.
+Большинство инструментов для бэктеста сделаны для американского рынка. На Мосбирже с ними
+начинаются проблемы:
 
-Просто опишите стратегию словами на русском — встроенный **ИИ-ассистент** сам напишет код и запустит бэктест. Программирование не нужно. Иногда.
+- **Нет данных.** Популярные бесплатные источники вроде `yfinance` российские бумаги толком не
+  покрывают.
+- **Свечей мало.** OHLCV показывает, *куда* сходила цена, но не *кто* её двигал: агрессивный
+  покупатель или пустой стакан, толпа или один крупный игрок.
+- **Тестер заглядывает в будущее.** Биржевая статистика публикуется с задержкой, иногда
+  пересчитывается задним числом, и наивный бэктест незаметно читает то, чего в тот момент ещё не
+  было.
+- **От теста до торговли — вторая разработка.** Стратегию, проверенную в одном инструменте,
+  приходится переписывать под API брокера.
+
+zipFinam закрывает все четыре проблемы.
 
 ---
 
-## ИИ-ассистент
+<a id="finam-data"></a>
+## 📈 Котировки Финама — вся Мосбиржа одной командой
 
-![ИИ-ассистент zipFinam](ai_assistant/img/ai_animation.gif)
-
-Самый простой способ начать — через ИИ-ассистента. Вы пишете, что хотите проверить, он делает остальное.
-
-### Установка
+Бары и справочник инструментов приходят напрямую из **Финам Trade API**: акции и фонды MOEX,
+таймфреймы от минуты до квартала. Нужен только токен из личного кабинета Финама.
 
 ```bash
-pip install zipfinam
+cd examples
+python ingest_finam.py      # справочник инструментов и дневные бары
+python run_backtest.py      # бэктест на голубых фишках
 ```
 
-### Настройка
+Финам подключается к движку как штатный провайдер данных: `get_market_data_source("finam")`
+работает так же, как встроенный Yahoo для американского рынка.
 
-Создайте файл `.env` в папке проекта:
+---
+
+<a id="algopack"></a>
+## 🔬 MOEX AlgoPack — то, чего не видно в свечах
+
+[AlgoPack](https://data.moex.com) — аналитика, которую Мосбиржа считает по собственной ленте
+сделок и стакану. Их не восстановить по свечам или ленте: биржа видит каждую заявку, включая снятые.
+В zipFinam таблицы AlgoPack читаются той же строкой, что и цены:
+
+```python
+# zipFinam достаточно установить: ziplime сам находит адреса algopack://
+flow = await data.history(assets=[sber], fields=["disb", "val"], bar_count=5,
+                          data_source="algopack://eq/tradestats")
+```
+
+| Таблица | Что видит стратегия | Рынки |
+|---|---|---|
+| `tradestats` | Кто пересекал спред: объём агрессивных покупок против продаж (`disb`) | акции, фьючерсы, валюта |
+| `orderstats` | Какие заявки выставили и какие сняли: настоящий спрос против декорации | акции, фьючерсы, валюта |
+| `obstats` | Спред в б.п., глубина и дисбаланс стакана каждые 5 минут | акции, фьючерсы, валюта |
+| `hi2` | Концентрация потока: покупает толпа или один игрок | акции, фьючерсы |
+| `futoi` | Открытый интерес физлиц против юрлиц | фьючерсы |
+| `alerts` | Сигналы биржи об аномальной активности | акции, фьючерсы, валюта |
+
+### Без заглядывания в будущее
+
+Это главное отличие от самодельного парсера. Каждая строка AlgoPack становится видна стратегии в
+момент, когда **биржа её опубликовала**, а не в момент, к которому она относится:
+
+- дневной итог виден на следующей сессии, а не в течение своей;
+- `hi2` биржа публикует примерно через шесть минут после своей метки времени, и раньше этого
+  стратегия его не увидит;
+- строки, которые биржа пересчитала задним числом (бывает, спустя месяцы), не пропадают из
+  бэктеста до даты пересчёта, а остаются на своём месте.
+
+Сводка за сессию собрана по правилу для каждой колонки: объёмы суммируются, VWAP взвешиваются,
+снимки стакана усредняются, дисбаланс пересчитывается по итогам дня. Агрегация сверена вручную
+с реальными данными SBER. Нужны пятиминутки — `algopack://eq/tradestats/5min`.
+
+Загруженная история кэшируется на диске: инструмент-год `tradestats` занимает около 3 МБ, и
+повторный бэктест по тем же годам не скачивает их заново.
+
+### Пять готовых стратегий
+
+В [`examples/algorithms/algopack/`](https://github.com/arbuzovv/zipFinam/tree/main/examples/algorithms/algopack) по стратегии на каждую таблицу:
+
+| Стратегия | Идея |
+|---|---|
+| `flow_tilt` | Держать голубые фишки, которые покупают агрессивные деньги |
+| `orderstats_conviction` | Покупать там, где выставленные биды не снимают |
+| `obstats_liquidity` | Держать то, что поддерживает стакан, а не случайный принт ленты |
+| `hi2_crowding` | Идти за бумагами, где покупает кто-то один против рассеянного рынка |
+| `futoi_crowd` | Стоять против толпы физлиц во фьючерсе на доллар/рубль |
+
+```bash
+python run_backtest.py algorithms/algopack/flow_tilt.py
+```
+
+---
+
+<a id="live"></a>
+## 💼 От бэктеста к вашему счёту
+
+Та же стратегия, без изменений, торгует на вашем брокерском счёте в Финаме через Trade API.
+Укажите данные счёта и запустите пример:
+
+```bash
+export FINAM_TRADE_TOKEN=...                 # токен счёта, на котором исполняются заявки
+export FINAM_ACCOUNT_ID=...                  # номер этого счёта
+export FINAM_TRADE_URL=https://api.finam.ru  # заявки уходят на ваш счёт
+cd examples && python run_live_finam.py
+```
+
+Исполнение рассчитано на реальные деньги:
+
+- **Стратегии выделяется капитал, а не весь счёт.** `order_target_percent(0.5)` — это половина
+  её бюджета, а не половина брокерского счёта.
+- **Лоты.** Объём округляется до целых лотов (GAZP — по 10 штук). Если размер лота неизвестен,
+  заявка не отправляется вовсе: наугад ничего не торгуется.
+- **Принятая заявка ≠ исполненная.** После каждого тика статус заявок запрашивается у брокера, и
+  отклонённая заявка отмечается как ошибка, а не как успех.
+
+---
+
+<a id="quick-start"></a>
+## Начало работы
+
+```bash
+pip install "zipfinam[all]"
+```
+
+Создайте `.env` в рабочей папке:
 
 ```env
-GRPC_TOKEN=ваш_jwt_токен_финам
-GRPC_SERVER_URL=api.finam.ru:443
-OPENROUTER_API_KEY=ваш_ключ_openrouter
+GRPC_TOKEN=...          # токен Финам Trade API: котировки, справочник, лоты
+ALGOPACK_API=...        # ключ MOEX AlgoPack, подписка на https://data.moex.com
 ```
 
-- **Токен Финам** — выдаётся в личном кабинете брокера на сайте [API Финама](https://api.finam.ru)
-- **Ключ OpenRouter** — бесплатная регистрация на [openrouter.ai](https://openrouter.ai), есть бесплатные модели
+Для бэктестов на свечах хватит `GRPC_TOKEN`. Можно поставить не всё:
 
-### Запуск
+| Extra | Что добавляет |
+|---|---|
+| — | Данные Финама, календари, адреса `algopack://` |
+| `algopack` | Клиент MOEX AlgoPack |
+| `live` | Исполнение заявок через Финам |
 
-```bash
-python -m ai_assistant
-```
-
-### Примеры запросов
-
-Просто напишите в чат на русском языке:
-
-```
-Протестируй стратегию купи-и-держи по акциям Сбербанка за 2024 год
-Запусти равновзвешенный портфель из SBER, GAZP, LKOH, GMKN с 2022 по 2024
-Проверь стратегию пересечения скользящих средних 20/50 на акциях Газпрома
-Сравни моментум и купи-и-держи для NVTK и GMKN в 2023 году
-```
-
-### Команды в чате
-
-| Команда    | Действие                  |
-|------------|---------------------------|
-| `помощь`   | Показать примеры запросов |
-| `очистить` | Сбросить историю разговора |
-| `выход`    | Выйти из программы        |
-
-### Параметры запуска
-
-```bash
-# Интерактивный выбор модели
-python -m ai_assistant
-
-# Запустить сразу без выбора модели
-python -m ai_assistant --default-model
-
-# Показывать сгенерированный код стратегии
-python -m ai_assistant --show-code
-```
-
-### Доступные модели
-
-При запуске отображается меню выбора модели:
-
-| Категория | Модели |
-|-----------|--------|
-| **Бесплатные** | `nvidia/nemotron-3-super-120b-a12b:free`, `qwen/qwen3-next-80b-a3b-instruct:free`, `z-ai/glm-4.5-air:free` *(по умолчанию)*, `stepfun/step-3.5-flash:free` |
-| **Платные (РФ)** | `deepseek/deepseek-v3.2`, `xiaomi/mimo-v2-flash`, `qwen/qwen3-coder-next`, `z-ai/glm-5`, `moonshotai/kimi-k2.5` |
-| **Платные (не РФ)** | `google/gemini-3.1-flash-lite-preview`, `x-ai/grok-code-fast-1`, `openai/gpt-5-mini` |
-
-Модель (любую с openrouter) можно задать через переменную окружения (тогда меню пропускается):
-```bash
-export OPENROUTER_MODEL=deepseek/deepseek-v3.2
-```
-
----
-
-## Для разработчиков
-
-Если вы хотите загружать данные и запускать стратегии вручную — читайте дальше.
-
-### Загрузка исторических данных
+Стратегия — обычный Python:
 
 ```python
-import asyncio
-from ziplime_grpc_data_source import GrpcDataSource
+from ziplime.finance.execution import MarketOrder
 
-data_source = GrpcDataSource(
-    grpc_token="ваш_токен",
-    grpc_server_url="api.finam.ru:443",
-)
 
-# Загрузка данных по акциям Сбербанка и Газпрома
-asyncio.run(data_source.ingest(
-    symbols=["SBER@MISX", "GAZP@MISX"],
-    start="2024-01-01",
-    end="2025-01-01",
-))
+async def initialize(context):
+    context.stocks = [await context.symbol(s) for s in ("SBER@MISX", "GAZP@MISX")]
+
+
+async def handle_data(context, data):
+    for stock in context.stocks:
+        bars = await data.history(assets=[stock], fields=["close"], bar_count=50)
+        if len(bars) < 50:
+            continue
+        closes = bars["close"].to_numpy()
+        target = 0.5 if closes[-20:].mean() > closes.mean() else 0.0
+        await context.order_target_percent(asset=stock, target=target, style=MarketOrder())
 ```
 
-### Загрузка каталога активов
+Тикеры пишутся с кодом площадки (`SBER@MISX`). Имя `context.assets` занято движком, своим
+переменным давайте другие имена.
 
-```python
-import asyncio
-from ziplime_grpc_data_source import FinamAssetDataSource
+### Календарь срочного рынка
 
-asset_source = FinamAssetDataSource(
-    authorization_token="ваш_токен",
-    server_url="api.finam.ru:443",
-)
-
-asyncio.run(asset_source.ingest())
-```
+Стандартный календарь XMOS заканчивается в 18:45, и фьючерсная стратегия теряет на нём вечернюю
+сессию. zipFinam добавляет календарь `FORTS` (09:00–23:50, клиринг 18:50–19:05) и регистрирует в
+ziplime площадки Мосбиржи: акции `MISX` живут по XMOS, срочный рынок `RTSX` — по FORTS. Каждая
+бумага торгуется в часы своей площадки, а для портфеля из бумаг нескольких бирж ziplime подбирает
+общий календарь: `clock_calendar_name(["MISX", "XNYS"])` → `24/5`.
 
 ### Отчёты в нескольких валютах
 
@@ -139,12 +217,8 @@ asyncio.run(asset_source.ingest())
 остаются в RUB. Переоценка в USD учитывает изменение курса, поэтому доходности в двух
 валютах могут различаться. Бенчмарк SBER также пересчитывается в валюту отчёта.
 
-Нужна версия ziplime с новой поддержкой `CurrencyReporting` и
-`CurrencyConversionService`. Для работы с соседним checkout из корня zipFinam:
-
-```bash
-python -m pip install -e ../ziplime
-```
+Нужна версия ziplime 2.12 или новее с поддержкой `CurrencyReporting` и
+`CurrencyConversionService`.
 
 Пример использует уже сохранённые каталог инструментов и дневные котировки SBER
 и выбранного USD/RUB-листинга. По умолчанию данные читаются из пакета
@@ -183,87 +257,42 @@ close при загрузке нужно указать время, когда �
 
 ---
 
-## Возможности
+## Под капотом
 
-- **Интеграция с Финам Trade API** — прямое подключение к данным российских ценных бумаг
-- **Исторические котировки** — загрузка OHLCV-данных в таймфреймах от M1 до MN (месяц)
-- **Каталог активов** — получение списка инструментов и бирж с маппингом тикеров
-- **Асинхронная архитектура** — параллельная загрузка данных через пул потоков
-- **ИИ-ассистент** — создание и запуск бэктестов по описанию стратегии на русском языке
-- **Автоматическая установка базы данных** — файл `assets.sqlite` копируется в `~/.ziplime/` при первом импорте пакета
-
----
-
-## Поддерживаемые таймфреймы
-
-| Код    | Описание        |
-|--------|-----------------|
-| `M1`   | 1 минута        |
-| `M5`   | 5 минут         |
-| `M15`  | 15 минут        |
-| `M30`  | 30 минут        |
-| `H1`   | 1 час           |
-| `H2`   | 2 часа          |
-| `H4`   | 4 часа          |
-| `H8`   | 8 часов         |
-| `D`    | День            |
-| `W`    | Неделя          |
-| `MN`   | Месяц           |
-
----
-
-## Примеры
-
-В папке `examples/` находятся готовые скрипты:
-
-- `ingest_assets_data_grpc.py` — загрузка каталога активов
-- `ingest_data_grpc.py` — загрузка исторических котировок (SBER, UGLD, UKUZ, WUSH)
-- `run_simulation_daily_grpc.py` — запуск дневной симуляции
-- `currencies/run_simulation_grpc.py` — одна симуляция с отчётами в RUB и USD
-- `algorithms/test_algo/test_algo.py` — пример алгоритма равновзвешенного портфеля
-
----
-
-## Структура проекта
+zipFinam — надстройка над [ziplime](https://github.com/Limex-com/ziplime), открытым движком
+бэктестинга и живой торговли от Limex. Движок, метрики и модели исполнения берутся из ziplime,
+а zipFinam добавляет российский рынок: данные, календари и брокера.
 
 ```
-ziplime_grpc_data_source/
-├── grpc_data_source.py        # Загрузка исторических данных из gRPC
-├── grpc_asset_data_source.py  # Загрузка активов и бирж из gRPC
-├── assets.sqlite              # База данных активов (копируется в ~/.ziplime/)
-└── grpc_stubs/                # Сгенерированные Protocol Buffer стабы
-    └── grpc/tradeapi/v1/
-        ├── auth/              # Сервис аутентификации
-        ├── assets/            # Сервис активов
-        ├── accounts/          # Сервис счетов
-        ├── marketdata/        # Сервис рыночных данных
-        └── orders/            # Сервис ордеров
-
-ai_assistant/
-├── agent.py                   # LLM-агент (OpenRouter)
-├── cli.py                     # Интерактивный CLI на русском языке
-├── data_manager.py            # Управление данными Финам API
-├── executor.py                # Запуск бэктестов
-└── prompts.py                 # Системные промпты на русском языке
+zipfinam/
+├── finam/               # Финам: бары, справочник, исполнение (REST и gRPC)
+├── algopack/            # MOEX AlgoPack: каталог таблиц, клиент, источник данных
+└── venue_calendars.py   # календарь FORTS и площадки Мосбиржи для ziplime
+examples/                # загрузка, бэктест, живая торговля, стратегии
 ```
 
----
+Тесты работают без сети: `pip install -e ".[dev]" && pytest`.
 
-## Зависимости
+<details>
+<summary>Переход с версии 0.x и ограничения</summary>
 
-- Python >= 3.12
-- [ziplime](https://github.com/Limex-com/ziplime) >= 1.11.11
-- grpcio >= 1.76.0
-- googleapis-common-protos >= 1.72.0
+- Нужен ziplime 2.12 или новее. Импорты: `from zipfinam import FinamDataSource, FinamAssetDataSource`;
+  старый модуль `ziplime_grpc_data_source` оставлен на время перехода.
+- Готовый `assets.sqlite` больше не поставляется: справочник загружается из Финама скриптом
+  `examples/ingest_finam.py`.
+- В стратегиях `data.history` и `data.current` вызываются с `await`, у заявок обязателен
+  `style=MarketOrder()`.
+- Из справочника Финама импортируются акции, фонды и валютные пары; фьючерсы и опционы пропускаются.
+- Торговый день AlgoPack (07:00–23:50) длиннее основной сессии акций (10:00–18:45), поэтому
+  `vol` и `pr_close` включают утро и вечер.
+- С версии 1.26.10.1 zipFinam подключается к ziplime через точки расширения (entry points
+  `ziplime.venue_calendars` и `ziplime.address_schemes`): площадки Мосбиржи, календарь FORTS и адреса
+  `algopack://` работают, как только пакет установлен, `import zipfinam` для этого не нужен. Прежняя
+  подмена `TradingAlgorithm._resolve_named_data_source` убрана.
 
-Для ИИ-ассистента дополнительно:
-- openai >= 1.0.0 (клиент OpenRouter)
-- rich >= 13.0.0
-- python-dotenv >= 1.0.0
-- quantstats >= 0.0.81 (HTML-отчёты по стратегиям)
+</details>
 
----
-
+<a id="license"></a>
 ## Лицензия
 
-Apache License 2.0
+GNU GPL v3, как у ziplime.

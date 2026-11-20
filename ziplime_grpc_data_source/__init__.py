@@ -1,25 +1,10 @@
+"""Former name of zipfinam's Finam sources, kept so code written against 0.x still imports.
+
+New code: ``from zipfinam import FinamDataSource, FinamAssetDataSource``.
 """
-ziplime-grpc-data-source — источник данных на основе gRPC для Ziplime (брокер Финам).
-"""
-import pathlib
-import shutil
+from zipfinam.finam.grpc_asset_data_source import GrpcAssetDataSource
+from zipfinam.finam.grpc_data_source import GrpcDataSource
 
-from ziplime_grpc_data_source.grpc_data_source import GrpcDataSource
-from ziplime_grpc_data_source.finam_asset_data_source import FinamAssetDataSource
+FinamAssetDataSource = GrpcAssetDataSource
 
-__version__ = "0.1.1"
-__all__ = ["GrpcDataSource", "FinamAssetDataSource"]
-
-
-def _install_assets() -> None:
-    """Копирует assets.sqlite в ~/.ziplime/ при первом импорте пакета."""
-    dest_dir = pathlib.Path.home() / ".ziplime"
-    dest_file = dest_dir / "assets.sqlite"
-    if not dest_file.exists():
-        dest_dir.mkdir(parents=True, exist_ok=True)
-        src = pathlib.Path(__file__).parent / "assets.sqlite"
-        if src.exists():
-            shutil.copy2(src, dest_file)
-
-
-_install_assets()
+__all__ = ["GrpcDataSource", "GrpcAssetDataSource", "FinamAssetDataSource"]

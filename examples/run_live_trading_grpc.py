@@ -14,12 +14,14 @@ from pathlib import Path
 
 import pytz
 
+from ziplime.assets.domain.asset_type import AssetType
+from ziplime.assets.entities.asset_symbol import AssetSymbol
 from ziplime.core.ingest_data import get_asset_service
 from ziplime.core.run_simulation import run_simulation, run_simulation_iter
 from ziplime.data.services.bundle_service import BundleService
 from ziplime.data.services.file_system_bundle_registry import FileSystemBundleRegistry
 
-from ziplime_grpc_data_source.grpc_exchange import GrpcExchange
+from zipfinam.finam.grpc_exchange import GrpcExchange
 
 logger = structlog.get_logger(__name__)
 
@@ -57,12 +59,16 @@ async def _run_live_trading():
         pl.col("volume").sum(),
         pl.col("symbol").last()
     ]
-    market_data_bundle = await bundle_service.load_bundle(bundle_name="grpc_daily_data",
+    exchange_assets = await asset_service.get_exchange_assets_by_symbols(
+        symbols=[AssetSymbol(symbol=s.split("@")[0], mic=s.split("@")[1]) for s in symbols],
+        asset_type=AssetType.EQUITY,
+    )
+    market_data_bundle, missing_data = await bundle_service.load_bundle(bundle_name="grpc_daily_data",
                                                           bundle_version=None,
                                                           frequency=datetime.timedelta(days=1),
                                                           start_date=start_date,
                                                           end_date=end_date + datetime.timedelta(days=1),
-                                                          symbols=[s.split("@")[0] for s in symbols],
+                                                          assets=exchange_assets,
                                                           aggregations=aggregations
                                                           )
 
@@ -92,11 +98,10 @@ async def _run_live_trading():
         start_date=start_date,
         end_date=end_date,
         trading_calendar=calendar,
-        algorithm_file=str(Path("algorithms/test_algo/test_algo_live_trading.py").absolute()),
+        algorithm_file=str(Path(__file__).resolve().parent.joinpath("algorithms/test_algo/test_algo_live_trading.py").absolute()),
         total_cash=100000.0,
         market_data_source=market_data_bundle,
         custom_data_sources=[],
-        config_file=str(Path("algorithms/test_algo/test_algo_config.json").absolute()),
         emission_rate=datetime.timedelta(days=1),
         benchmark_asset_symbol=benchmark_asset_symbol,
         benchmark_returns=None,

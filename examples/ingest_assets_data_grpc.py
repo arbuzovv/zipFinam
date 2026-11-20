@@ -4,7 +4,7 @@ import logging
 
 from ziplime.assets.entities.asset_symbol import AssetSymbol
 from ziplime.core.ingest_data import get_asset_service, ingest_assets
-from ziplime_grpc_data_source.finam_asset_data_source import FinamAssetDataSource
+from zipfinam import FinamAssetDataSource
 from ziplime.utils.logging_utils import configure_logging
 
 

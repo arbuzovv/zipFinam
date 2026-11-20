@@ -25,7 +25,7 @@ class AlgorithmConfig(BaseAlgorithmConfig):
 
 
 async def initialize(context):
-    context.assets = [
+    context.stocks = [
         await context.symbol("SBER@MISX"),
         await context.symbol("MGNT@MISX"),
         await context.symbol("UNAC@MISX")
@@ -35,31 +35,31 @@ async def initialize(context):
 
 
 async def handle_data(context: TradingAlgorithm, data: BarData):
-    num_assets = len(context.assets)
+    num_assets = len(context.stocks)
     target_percent = 1.0 / num_assets
-    current_prices = await data.current(assets=context.assets, fields=["price"], data_source="finam_arena")
-    await context.order_target_percent(asset=context.assets[0], exchange_name="finam_arena",
+    current_prices = await data.current(assets=context.stocks, fields=["price"], data_source="finam_arena")
+    await context.order_target_percent(asset=context.stocks[0], exchange_name="finam_arena",
                                        style=MarketOrder(), target=0.1)
 
     # print(context.portfolio)
     # result = await context.order(exchange_name="grpc_exchange",
-    #               asset=context.assets[1],
+    #               asset=context.stocks[1],
     #               style=MarketOrder(),
     #               amount=-1,
     #               ),
-    # await context.order_target(asset=context.assets[1], exchange_name="grpc_exchange",
+    # await context.order_target(asset=context.stocks[1], exchange_name="grpc_exchange",
     #                      style=LimitOrder(limit_price=current_prices.filter(pl.col("symbol") == "GMKN")[0]["price"][0]), target=1)
-    # await context.order_target(asset=context.assets[1], exchange_name="grpc_exchange",
+    # await context.order_target(asset=context.stocks[1], exchange_name="grpc_exchange",
     #                      style=LimitOrder(limit_price=current_prices.filter(pl.col("symbol") == "MGNT")[0]["price"][0]), target=2)
-    # await context.order_target(asset=context.assets[1], exchange_name="grpc_exchange",
+    # await context.order_target(asset=context.stocks[1], exchange_name="grpc_exchange",
     #                      style=MarketOrder(), target=1)
 
-    # await context.order_target(asset=context.assets[1], exchange_name="grpc_exchange",
+    # await context.order_target(asset=context.stocks[1], exchange_name="grpc_exchange",
     #                      style=MarketOrder(), target=1)
 
-    for asset in context.assets:
+    for asset in context.stocks:
         print(f"Ordering asset={asset}, target_percent={target_percent}")
 
     # open_orders = context.get_open_orders()
     # for order in open_orders:
-    # await context.cancel_all_orders_for_asset(asset=context.assets[0], exchange_name="grpc_exchange")
+    # await context.cancel_all_orders_for_asset(asset=context.stocks[0], exchange_name="grpc_exchange")
